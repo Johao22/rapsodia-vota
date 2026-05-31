@@ -164,6 +164,7 @@ const db  = firebase.database();
 
 let hasVoted = {};
 let currentRoundId = null;
+let currentData = null;
 
 function getVoterId() {
   let id = localStorage.getItem('rapsodia_voter_id');
@@ -193,7 +194,19 @@ const phaseEl   = document.getElementById('phase-label');
 
 db.ref('rapsodia_event/current').on('value', snap => {
   const data = snap.val();
-  if (!data) return;
+  currentData = data;
+  if (!data) {
+    phaseEl.textContent = 'En espera';
+    contentEl.innerHTML = `
+      <div class="sj-center-logo" style="animation:fadeUp .4s ease">
+        <img src="img/Logo-SAN-JORGE.png" alt="San Jorge">
+      </div>
+      <div class="msg-card" style="animation:fadeUp .5s ease">
+        <h2>Esperando batalla...</h2>
+        <p>Mantén esta página abierta. La votación aparecerá automáticamente.</p>
+      </div>`;
+    return;
+  }
   currentRoundId = data.roundId;
   render(data);
 });
@@ -332,6 +345,8 @@ function render(data) {
 
 function vote(mc) {
   if (!currentRoundId || hasVoted[currentRoundId]) return;
+  // Verificar que la votación sigue abierta en Firebase
+  if (!currentData || currentData.status !== 'voting' || (currentData.timeLeft||0) <= 0) return;
   vibrate();
   const voterRef = db.ref(`rapsodia_event/voters/${currentRoundId}/${VOTER_ID}`);
   voterRef.once('value', snap => {
