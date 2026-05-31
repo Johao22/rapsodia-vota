@@ -77,20 +77,6 @@ const content = document.getElementById('content');
 const VOTE_URL = BASE_URL + '/vota.html';
 
 let qrDataUrl = null;
-let lastData = null;
-
-async function generateQR() {
-  try {
-    qrDataUrl = await QRCode.toDataURL(VOTE_URL, {
-      width: 200, margin: 1, color: { dark: '#000000', light: '#ffffff' },
-      errorCorrectionLevel: 'M'
-    });
-    if (lastData) render(lastData);
-  } catch(e) {
-    console.error('QR error:', e);
-  }
-}
-generateQR();
 
 function qrImg(size) {
   if (!qrDataUrl) return '';
@@ -114,15 +100,29 @@ function animNum(id, target) {
   requestAnimationFrame(tick);
 }
 
-db.ref('rapsodia_event/current').on('value', snap => {
-  const d = snap.val();
-  if (!d) {
-    lastData = null;
-    content.innerHTML = `<div class="idle-screen"><div class="idle-logo">RAPSODIA</div><div class="idle-sub">PRÓXIMA BATALLA EN BREVE</div></div>`;
-    return;
+async function buildQR() {
+  try {
+    qrDataUrl = await QRCode.toDataURL(VOTE_URL, {
+      width: 220, margin: 1, color: { dark: '#000000', light: '#ffffff' },
+      errorCorrectionLevel: 'M'
+    });
+  } catch(e) {
+    console.error('QR error:', e);
   }
-  lastData = d;
-  render(d);
+}
+
+let currentData = null;
+
+buildQR().then(() => {
+  db.ref('rapsodia_event/current').on('value', snap => {
+    const d = snap.val();
+    currentData = d;
+    if (!d) {
+      content.innerHTML = `<div class="idle-screen"><div class="idle-logo">RAPSODIA</div><div class="idle-sub">PRÓXIMA BATALLA EN BREVE</div></div>`;
+      return;
+    }
+    render(d);
+  });
 });
 
 function render(d) {
@@ -237,7 +237,9 @@ function render(d) {
   }
 }
 
-window.addEventListener('resize', () => generateQR());
+window.addEventListener('resize', () => {
+  buildQR().then(() => { if (currentData) render(currentData); });
+});
 </script>
 </body>
 </html>
