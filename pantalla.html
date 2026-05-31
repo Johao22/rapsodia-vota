@@ -3,67 +3,168 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rapsodia — Pantalla</title>
+<title>Voto San Jorge — Pantalla</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#050505;color:#fff;font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
-.screen{width:100%;height:100%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.bg-glow{position:absolute;inset:0;pointer-events:none}
-.bg-glow::before{content:'';position:absolute;left:0;top:0;width:50%;height:100%;background:radial-gradient(ellipse at 30% 50%,rgba(226,75,74,.06) 0%,transparent 60%)}
-.bg-glow::after{content:'';position:absolute;right:0;top:0;width:50%;height:100%;background:radial-gradient(ellipse at 70% 50%,rgba(55,138,221,.06) 0%,transparent 60%)}
-.content{position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3%}
-.phase-label{font-size:clamp(10px,1.4vw,16px);letter-spacing:6px;color:#444;text-transform:uppercase;margin-bottom:1vh}
-.mc-row{display:flex;align-items:center;justify-content:center;width:100%;gap:3%}
-.mc-side{flex:1;text-align:center;transition:all .8s}
-.mc-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,6vw,72px);letter-spacing:5px;line-height:1}
-.mc-name.red{color:#E24B4A}
-.mc-name.blue{color:#378ADD}
-.mc-count{font-size:clamp(40px,8vw,96px);font-weight:700;line-height:1;margin-top:1vh}
-.mc-count span{font-size:clamp(16px,2.5vw,32px);color:#555}
-.mc-label{font-size:clamp(10px,1.3vw,16px);color:#555;margin-top:.5vh;letter-spacing:2px}
-.vs{font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,3vw,36px);color:#222;letter-spacing:8px}
-.center-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5vh;min-width:clamp(80px,12vw,160px)}
-.timer-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:clamp(8px,1vw,16px);padding:1vh 2vw;text-align:center;transition:all .3s}
-.timer-box.urgent{background:rgba(226,75,74,.15);border-color:rgba(226,75,74,.3)}
-.timer-num{font-size:clamp(28px,5vw,56px);font-weight:700;line-height:1;transition:color .3s}
-.timer-label{font-size:clamp(8px,1vw,12px);color:#555;letter-spacing:2px;margin-top:2px}
-.qr-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:clamp(8px,1vw,14px);padding:clamp(4px,0.6vw,10px);display:flex;align-items:center;justify-content:center}
-.qr-text{font-size:clamp(7px,0.9vw,11px);color:#444;letter-spacing:2px;margin-top:4px;text-align:center}
-.bar{display:flex;height:clamp(12px,2vh,28px);border-radius:14px;overflow:hidden;background:#111;gap:2px;width:80%;margin-top:2vh;transition:all .3s}
-.bar div{transition:all .6s cubic-bezier(.4,0,.2,1)}
-.bar .r{background:rgba(226,75,74,.6)}
-.bar .b{background:rgba(55,138,221,.6)}
-.bar .r.win{background:#E24B4A;box-shadow:0 0 20px rgba(226,75,74,.5)}
-.bar .b.win{background:#378ADD;box-shadow:0 0 20px rgba(55,138,221,.5)}
-.footer{position:absolute;bottom:2%;left:0;right:0;text-align:center;font-size:clamp(9px,1.1vw,13px);color:#2a2a2a;letter-spacing:4px;z-index:1}
-.winner-label{font-size:clamp(12px,1.6vw,20px);letter-spacing:6px;font-weight:700;text-transform:uppercase;margin-top:1vh;background:linear-gradient(90deg,var(--wc1),var(--wc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.scan-hero{display:flex;flex-direction:column;align-items:center;gap:3vh}
-.scan-hero .qr-wrap{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:clamp(12px,1.5vw,24px);padding:clamp(12px,2vw,28px);display:flex;align-items:center;gap:clamp(16px,3vw,36px)}
-.scan-hero .cta{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,52px);letter-spacing:4px}
-.scan-hero .url{font-size:clamp(10px,1.4vw,16px);color:#555;letter-spacing:2px}
-.scan-hero .waiting{font-size:clamp(10px,1.2vw,14px);color:#333;letter-spacing:3px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes glow{0%,100%{opacity:.2}50%{opacity:.5}}
-.winner-glow{animation:glow 2s ease-in-out infinite}
-#qr-canvas{border-radius:4px}
+:root{
+  --red:#CC1A1A;--red2:#E24B4A;--gold:#D4A017;--gold2:#F2C94C;
+  --blue:#378ADD;--bg:#060608;--card:rgba(255,255,255,.04);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#fff;overflow:hidden;width:100vw;height:100vh}
 
-.idle-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vh}
-.idle-logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,8vw,80px);letter-spacing:8px;color:#E24B4A}
-.idle-sub{font-size:clamp(12px,1.5vw,18px);color:#333;letter-spacing:6px}
+/* ── BRAND BAR ── */
+.brand-bar{
+  position:absolute;top:0;left:0;right:0;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:clamp(8px,1.2vh,18px) clamp(16px,2.5vw,40px);
+  background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,transparent 100%);
+}
+.brand-bar .logos{display:flex;align-items:center;gap:clamp(8px,1.5vw,20px)}
+.brand-bar img{height:clamp(28px,4.5vh,56px);object-fit:contain}
+.brand-bar .divider{width:1px;height:clamp(24px,3.5vh,44px);background:rgba(255,255,255,.15)}
+.brand-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(13px,2vw,26px);letter-spacing:5px;color:#fff;text-align:center}
+.brand-title span{color:var(--gold)}
+.brand-tag{font-size:clamp(9px,1vw,13px);letter-spacing:3px;color:rgba(255,255,255,.3);text-align:right}
+
+/* ── FOOTER ── */
+.footer{
+  position:absolute;bottom:0;left:0;right:0;z-index:10;
+  display:flex;align-items:center;justify-content:center;gap:2vw;
+  padding:clamp(6px,1vh,14px) 2vw;
+  background:linear-gradient(0deg,rgba(0,0,0,.6) 0%,transparent 100%);
+  font-size:clamp(8px,0.9vw,12px);color:rgba(255,255,255,.2);letter-spacing:4px;
+}
+.footer .dot{color:rgba(255,255,255,.1)}
+
+/* ── BG FX ── */
+.bg-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.bg-fx .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.07;animation:drift 12s ease-in-out infinite}
+.bg-fx .blob1{width:50vw;height:50vw;background:var(--red);left:-10%;top:-10%;animation-delay:0s}
+.bg-fx .blob2{width:40vw;height:40vw;background:var(--gold);right:-10%;bottom:-10%;animation-delay:-4s}
+.bg-fx .blob3{width:35vw;height:35vw;background:var(--blue);right:10%;top:20%;animation-delay:-8s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(3%,4%) scale(1.05)}66%{transform:translate(-3%,-2%) scale(.97)}}
+
+/* ── CONTENT ── */
+.content{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:clamp(60px,10vh,100px) clamp(16px,3vw,60px) clamp(40px,6vh,70px);
+}
+
+/* ── IDLE ── */
+.idle-wrap{display:flex;flex-direction:column;align-items:center;gap:2.5vh;animation:fadeUp .6s ease}
+.idle-logo-img{height:clamp(60px,10vh,110px);object-fit:contain;filter:drop-shadow(0 0 30px rgba(204,26,26,.4))}
+.idle-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,4vw,50px);letter-spacing:8px;color:var(--gold)}
+.idle-battle{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5.5vw,70px);letter-spacing:4px;color:#fff;text-align:center}
+.idle-battle .sep{color:#333;margin:0 1vw}
+.idle-sub{font-size:clamp(10px,1.2vw,16px);color:#444;letter-spacing:5px;animation:pulse 2.5s ease-in-out infinite}
+.idle-phase{font-size:clamp(10px,1.3vw,16px);color:var(--red2);letter-spacing:4px}
+
+/* ── SCAN ── */
+.scan-wrap{display:flex;flex-direction:column;align-items:center;gap:3vh;animation:fadeUp .5s ease}
+.scan-names{display:flex;align-items:center;gap:3vw;margin-bottom:.5vh}
+.scan-mc{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6.5vw,80px);letter-spacing:4px}
+.scan-mc.r{color:var(--red2)}
+.scan-mc.b{color:var(--blue)}
+.scan-vs{font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,2.5vw,32px);color:#333;letter-spacing:6px}
+.scan-card{
+  display:flex;align-items:center;gap:clamp(20px,4vw,50px);
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:clamp(16px,2vw,28px);padding:clamp(16px,2.5vw,36px) clamp(24px,4vw,56px);
+  box-shadow:0 0 60px rgba(212,160,23,.08);
+}
+.scan-qr-wrap{position:relative}
+.scan-qr-wrap::after{
+  content:'';position:absolute;inset:-6px;border-radius:10px;
+  border:2px solid var(--gold);opacity:.5;animation:pulse 2s ease-in-out infinite;
+}
+.scan-cta{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5.5vw,64px);letter-spacing:4px;line-height:1}
+.scan-cta span{color:var(--gold)}
+.scan-url{font-size:clamp(11px,1.3vw,17px);color:#555;letter-spacing:2px;margin-top:.5vh}
+.scan-wait{font-size:clamp(10px,1.1vw,14px);color:#333;letter-spacing:3px;margin-top:.5vh;animation:pulse 2s ease-in-out infinite}
+.scan-phase{font-size:clamp(10px,1.2vw,15px);color:var(--red2);letter-spacing:5px}
+
+/* ── VOTING ── */
+.vote-wrap{display:flex;flex-direction:column;align-items:center;width:100%;gap:2vh;animation:fadeIn .4s ease}
+.vote-phase{font-size:clamp(10px,1.2vw,15px);letter-spacing:6px;color:#444}
+.vote-status{font-size:clamp(10px,1.2vw,15px);letter-spacing:4px;font-weight:700}
+.vote-status.open{color:var(--gold)}
+.vote-status.closed{color:#444}
+.mc-row{display:flex;align-items:center;justify-content:center;width:100%;gap:2%}
+.mc-side{flex:1;text-align:center;transition:all .6s}
+.mc-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,6vw,80px);letter-spacing:4px;line-height:1}
+.mc-name.r{color:var(--red2)}
+.mc-name.b{color:var(--blue)}
+.mc-count{font-size:clamp(48px,9vw,108px);font-weight:700;line-height:1;margin-top:.5vh}
+.mc-count small{font-size:35%;color:#444;font-weight:400}
+.mc-lbl{font-size:clamp(9px,1.1vw,14px);color:#444;letter-spacing:3px;margin-top:.3vh}
+.center-col{display:flex;flex-direction:column;align-items:center;gap:1.5vh;min-width:clamp(90px,13vw,170px)}
+.timer-box{background:var(--card);border:1px solid rgba(255,255,255,.1);border-radius:clamp(10px,1.2vw,18px);padding:1.2vh 2vw;text-align:center;transition:all .3s}
+.timer-box.urgent{background:rgba(226,75,74,.15);border-color:rgba(226,75,74,.4);box-shadow:0 0 30px rgba(226,75,74,.2)}
+.timer-num{font-size:clamp(28px,5vw,60px);font-weight:700;line-height:1}
+.timer-lbl{font-size:clamp(8px,.9vw,12px);color:#444;letter-spacing:3px;margin-top:2px}
+.qr-mini{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px}
+.qr-lbl{font-size:clamp(7px,.8vw,11px);color:#333;letter-spacing:2px;margin-top:4px}
+
+/* ── BAR ── */
+.bar{display:flex;height:clamp(10px,1.8vh,24px);border-radius:12px;overflow:hidden;background:#111;gap:2px;width:85%;transition:all .3s}
+.bar div{transition:width .7s cubic-bezier(.4,0,.2,1)}
+.bar .r{background:rgba(226,75,74,.65)}
+.bar .b{background:rgba(55,138,221,.65)}
+.bar .r.win{background:var(--red2);box-shadow:0 0 20px rgba(226,75,74,.5)}
+.bar .b.win{background:var(--blue);box-shadow:0 0 20px rgba(55,138,221,.5)}
+
+/* ── RESULTS ── */
+.result-wrap{display:flex;flex-direction:column;align-items:center;width:100%;gap:1.5vh;animation:fadeUp .6s ease}
+.winner-badge{font-size:clamp(9px,1.1vw,14px);letter-spacing:5px;color:var(--gold);margin-top:.8vh;text-transform:uppercase;font-weight:700}
+.total-votes{font-size:clamp(9px,1vw,13px);color:#2a2a2a;letter-spacing:4px;margin-top:1vh}
+
+/* ── REPLICA ── */
+.replica-wrap{display:flex;flex-direction:column;align-items:center;gap:1vh;width:100%;animation:fadeUp .5s ease}
+.replica-text{font-family:'Bebas Neue',sans-serif;font-size:clamp(60px,11vw,130px);letter-spacing:12px;color:var(--gold);animation:pulse 1.1s ease-in-out infinite;line-height:1}
+.replica-sub{font-size:clamp(11px,1.4vw,18px);color:#555;letter-spacing:5px}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes shimmer{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
 </style>
 </head>
 <body>
 
-<div class="screen">
-  <div class="bg-glow"></div>
-  <div class="content" id="content">
-    <div class="idle-screen">
-      <div class="idle-logo">RAPSODIA</div>
-      <div class="idle-sub">CONECTANDO...</div>
-    </div>
+<div class="bg-fx">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+
+<div class="brand-bar">
+  <div class="logos">
+    <img src="img/Logo-SAN-JORGE.png" alt="San Jorge">
+    <div class="divider"></div>
+    <img src="img/Logo- RAPSODIA.png" alt="Rapsodia">
   </div>
-  <div class="footer">RAPSODIA PERÚ &middot; #RAPSODIAPERU &middot; @RAPSODIA.PERU</div>
+  <div class="brand-title">VOTO <span>SAN JORGE</span></div>
+  <div class="brand-tag">#RAPSODIAPERU</div>
+</div>
+
+<div class="content" id="content">
+  <div class="idle-wrap">
+    <img class="idle-logo-img" src="img/Logo- RAPSODIA.png" alt="Rapsodia">
+    <div class="idle-sub">CONECTANDO...</div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>RAPSODIA PERÚ</span>
+  <span class="dot">&middot;</span>
+  <span>@RAPSODIA.PERU</span>
+  <span class="dot">&middot;</span>
+  <span>#RAPSODIAPERU</span>
+  <span class="dot">&middot;</span>
+  <span style="color:rgba(212,160,23,.4)">AUSPICIADO POR SAN JORGE</span>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -74,28 +175,10 @@ const app = firebase.initializeApp(FIREBASE_CONFIG);
 const db = firebase.database();
 const content = document.getElementById('content');
 const VOTE_URL = BASE_URL + '/vota.html';
-
-const QR_URL = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=4&data=${encodeURIComponent(VOTE_URL)}`;
+const QR_URL = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=4&data=${encodeURIComponent(VOTE_URL)}`;
 
 function qrImg(size) {
-  return `<img src="${QR_URL}" width="${size}" height="${size}" style="border-radius:6px;background:#fff">`;
-}
-
-function animNum(id, target) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const start = parseInt(el.dataset.current || '0');
-  const diff = target - start;
-  const startTime = Date.now();
-  const duration = 600;
-  function tick() {
-    const p = Math.min((Date.now()-startTime)/duration, 1);
-    const ease = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.round(start + diff * ease);
-    if (p < 1) requestAnimationFrame(tick);
-    else el.dataset.current = target;
-  }
-  requestAnimationFrame(tick);
+  return `<img src="${QR_URL}" width="${size}" height="${size}" style="border-radius:6px;background:#fff;display:block">`;
 }
 
 let currentData = null;
@@ -104,28 +187,32 @@ db.ref('rapsodia_event/current').on('value', snap => {
   const d = snap.val();
   currentData = d;
   if (!d) {
-    content.innerHTML = `<div class="idle-screen"><div class="idle-logo">RAPSODIA</div><div class="idle-sub">PRÓXIMA BATALLA EN BREVE</div></div>`;
+    content.innerHTML = `
+      <div class="idle-wrap">
+        <img class="idle-logo-img" src="img/Logo- RAPSODIA.png" alt="Rapsodia">
+        <div class="idle-title">VOTO SAN JORGE</div>
+        <div class="idle-sub">PRÓXIMA BATALLA EN BREVE</div>
+      </div>`;
     return;
   }
   render(d);
 });
 
 function render(d) {
-  const total = (d.votes1||0)+(d.votes2||0)||1;
-  const pct1 = Math.round((d.votes1||0)/total*100);
-  const pct2 = Math.round((d.votes2||0)/total*100);
-  const w = (d.votes1||0) >= (d.votes2||0) ? 1 : 2;
-  const qrSize = Math.min(Math.floor(window.innerHeight * 0.18), 160);
-  const qrSizeSm = Math.min(Math.floor(window.innerHeight * 0.1), 80);
+  const v1 = d.votes1||0, v2 = d.votes2||0;
+  const total = v1+v2||1;
+  const pct1 = Math.round(v1/total*100);
+  const pct2 = Math.round(v2/total*100);
+  const w = v1 >= v2 ? 1 : 2;
+  const isTie = v1 === v2;
+  const qrSize = Math.min(Math.floor(window.innerHeight * 0.2), 180);
+  const qrSm   = Math.min(Math.floor(window.innerHeight * 0.11), 90);
 
   if (d.status === 'idle') {
     content.innerHTML = `
-      <div class="idle-screen">
-        <div class="idle-logo">RAPSODIA</div>
-        <div class="phase-label">${d.phase || ''}</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,3.5vw,40px);letter-spacing:3px;color:#555">
-          ${d.mc1||''} <span style="color:#222;margin:0 10px">VS</span> ${d.mc2||''}
-        </div>
+      <div class="idle-wrap">
+        <div class="idle-phase">${d.phase||''}</div>
+        <div class="idle-battle">${d.mc1||''}<span class="sep">VS</span>${d.mc2||''}</div>
         <div class="idle-sub">PRÓXIMA BATALLA</div>
       </div>`;
     return;
@@ -133,21 +220,21 @@ function render(d) {
 
   if (d.status === 'scan') {
     content.innerHTML = `
-      <div class="scan-hero">
-        <div class="phase-label">${d.phase}</div>
-        <div class="mc-row" style="margin-bottom:1vh">
-          <div class="mc-side"><div class="mc-name red">${d.mc1}</div></div>
-          <div class="vs">VS</div>
-          <div class="mc-side"><div class="mc-name blue">${d.mc2}</div></div>
+      <div class="scan-wrap">
+        <div class="scan-phase">${d.phase}</div>
+        <div class="scan-names">
+          <div class="scan-mc r">${d.mc1}</div>
+          <div class="scan-vs">VS</div>
+          <div class="scan-mc b">${d.mc2}</div>
         </div>
-        <div class="qr-wrap">
-          ${qrImg(qrSize)}
+        <div class="scan-card">
+          <div class="scan-qr-wrap">${qrImg(qrSize)}</div>
           <div>
-            <div class="cta">ESCANEA Y VOTA</div>
-            <div class="url">${VOTE_URL.replace('https://','')}</div>
+            <div class="scan-cta">ESCANEA<br>Y <span>VOTA</span></div>
+            <div class="scan-url">${VOTE_URL.replace('https://','')}</div>
           </div>
         </div>
-        <div class="waiting">Votación abre en segundos...</div>
+        <div class="scan-wait">Votación abre en segundos...</div>
       </div>`;
     return;
   }
@@ -155,75 +242,91 @@ function render(d) {
   if (d.status === 'voting' || d.status === 'closed') {
     const isOpen = d.status === 'voting' && (d.timeLeft||0) > 0;
     const urgent = isOpen && (d.timeLeft||0) <= 10;
-
     content.innerHTML = `
-      <div class="phase-label">${d.phase} &middot; VOTACIÓN ${isOpen?'ABIERTA':'CERRADA'}</div>
-      <div class="mc-row">
-        <div class="mc-side">
-          <div class="mc-name red">${d.mc1}</div>
-          <div class="mc-count"><span id="count1">${d.votes1||0}</span></div>
-          <div class="mc-label">votos</div>
+      <div class="vote-wrap">
+        <div style="display:flex;gap:1vw;align-items:center">
+          <div class="vote-phase">${d.phase}</div>
+          <div class="vote-status ${isOpen?'open':'closed'}">${isOpen?'· VOTACIÓN ABIERTA':'· VOTACIÓN CERRADA'}</div>
         </div>
-        <div class="center-col">
-          ${isOpen ? `
-            <div class="timer-box ${urgent?'urgent':''}">
-              <div class="timer-num" style="color:${urgent?'#E24B4A':'#fff'}">${d.timeLeft}</div>
-              <div class="timer-label">SEG</div>
-            </div>` : `
-            <div class="timer-box">
-              <div class="timer-num" style="color:#555;font-size:clamp(14px,2vw,24px)">CERRADA</div>
-            </div>`}
-          <div class="qr-box">
-            ${qrImg(qrSizeSm)}
+        <div class="mc-row">
+          <div class="mc-side">
+            <div class="mc-name r">${d.mc1}</div>
+            <div class="mc-count" id="c1">${v1}<small> vts</small></div>
+            <div class="mc-lbl">${pct1}%</div>
           </div>
-          <div class="qr-text">ESCANEA</div>
+          <div class="center-col">
+            ${isOpen
+              ? `<div class="timer-box ${urgent?'urgent':''}">
+                   <div class="timer-num" style="color:${urgent?'#E24B4A':'#fff'}">${d.timeLeft}</div>
+                   <div class="timer-lbl">SEG</div>
+                 </div>`
+              : `<div class="timer-box">
+                   <div class="timer-num" style="color:#444;font-size:clamp(12px,1.8vw,22px)">CERRADA</div>
+                 </div>`}
+            <div class="qr-mini">${qrImg(qrSm)}</div>
+            <div class="qr-lbl">ESCANEA</div>
+          </div>
+          <div class="mc-side">
+            <div class="mc-name b">${d.mc2}</div>
+            <div class="mc-count" id="c2">${v2}<small> vts</small></div>
+            <div class="mc-lbl">${pct2}%</div>
+          </div>
         </div>
-        <div class="mc-side">
-          <div class="mc-name blue">${d.mc2}</div>
-          <div class="mc-count"><span id="count2">${d.votes2||0}</span></div>
-          <div class="mc-label">votos</div>
+        <div class="bar">
+          <div class="r" style="width:${pct1}%"></div>
+          <div class="b" style="width:${pct2}%"></div>
         </div>
-      </div>
-      <div class="bar">
-        <div class="r" style="width:${pct1}%"></div>
-        <div class="b" style="width:${pct2}%"></div>
       </div>`;
     return;
   }
 
   if (d.status === 'results') {
-    const isTie = (d.votes1||0) === (d.votes2||0);
-    const wc1 = w===1 ? '#E24B4A' : '#378ADD';
-    const wc2 = w===1 ? '#F2A623' : '#5DCAA5';
+    if (isTie) {
+      content.innerHTML = `
+        <div class="replica-wrap">
+          <div class="vote-phase">${d.phase} · RESULTADO</div>
+          <div class="replica-text">RÉPLICA</div>
+          <div class="replica-sub">EMPATE — SE DEBE REPETIR LA BATALLA</div>
+          <div class="mc-row" style="margin-top:2vh;width:70%">
+            <div class="mc-side"><div class="mc-name r">${d.mc1}</div><div class="mc-count">${pct1}<small>%</small></div><div class="mc-lbl">${v1} votos</div></div>
+            <div style="font-family:'Bebas Neue',sans-serif;color:#222;letter-spacing:6px;font-size:clamp(18px,2.5vw,32px)">VS</div>
+            <div class="mc-side"><div class="mc-name b">${d.mc2}</div><div class="mc-count">${pct2}<small>%</small></div><div class="mc-lbl">${v2} votos</div></div>
+          </div>
+          <div class="bar" style="width:70%">
+            <div class="r" style="width:50%"></div>
+            <div class="b" style="width:50%"></div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    const winName  = w===1 ? d.mc1 : d.mc2;
+    const winColor = w===1 ? '#E24B4A' : '#378ADD';
+    const winPct   = w===1 ? pct1 : pct2;
     content.innerHTML = `
-      <div class="phase-label">${d.phase} &middot; RESULTADO DEL PÚBLICO</div>
-      ${isTie ? `
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,9vw,110px);letter-spacing:10px;color:#EF9F27;text-align:center;animation:pulse 1.2s ease-in-out infinite">RÉPLICA</div>
-      <div style="text-align:center;font-size:clamp(12px,1.5vw,18px);color:#555;letter-spacing:4px;margin-bottom:2vh">EMPATE — SE DEBE REPETIR LA BATALLA</div>
-      ` : ''}
-      <div class="mc-row">
-        <div class="mc-side" style="opacity:${isTie?'1':w===2?'.25':'1'};transform:scale(${isTie?'1':w===1?'1.06':'0.95'})">
-          <div class="mc-name red" style="${!isTie&&w===1?'text-shadow:0 0 40px rgba(226,75,74,.5)':''}">${d.mc1}</div>
-          <div class="mc-count">${pct1}<span>%</span></div>
-          <div class="mc-label">${d.votes1||0} votos</div>
-          ${!isTie&&w===1?`<div class="winner-label" style="--wc1:${wc1};--wc2:${wc2}">Favorito del público</div>`:''}
+      <div class="result-wrap">
+        <div class="vote-phase">${d.phase} · RESULTADO DEL PÚBLICO</div>
+        <div class="mc-row">
+          <div class="mc-side" style="opacity:${w===2?.25:1};transform:scale(${w===1?1.05:.94});transition:all .8s">
+            <div class="mc-name r" style="${w===1?'text-shadow:0 0 50px rgba(226,75,74,.45)':''}">${d.mc1}</div>
+            <div class="mc-count" style="${w===1?'color:#fff':'color:#444'}">${pct1}<small>%</small></div>
+            <div class="mc-lbl">${v1} votos</div>
+            ${w===1?`<div class="winner-badge">⚡ FAVORITO DEL PÚBLICO</div>`:''}
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;color:#1a1a1a;letter-spacing:8px;font-size:clamp(18px,2.5vw,32px)">VS</div>
+          <div class="mc-side" style="opacity:${w===1?.25:1};transform:scale(${w===2?1.05:.94});transition:all .8s">
+            <div class="mc-name b" style="${w===2?'text-shadow:0 0 50px rgba(55,138,221,.45)':''}">${d.mc2}</div>
+            <div class="mc-count" style="${w===2?'color:#fff':'color:#444'}">${pct2}<small>%</small></div>
+            <div class="mc-lbl">${v2} votos</div>
+            ${w===2?`<div class="winner-badge">⚡ FAVORITO DEL PÚBLICO</div>`:''}
+          </div>
         </div>
-        <div class="vs">VS</div>
-        <div class="mc-side" style="opacity:${isTie?'1':w===1?'.25':'1'};transform:scale(${isTie?'1':w===2?'1.06':'0.95'})">
-          <div class="mc-name blue" style="${!isTie&&w===2?'text-shadow:0 0 40px rgba(55,138,221,.5)':''}">${d.mc2}</div>
-          <div class="mc-count">${pct2}<span>%</span></div>
-          <div class="mc-label">${d.votes2||0} votos</div>
-          ${!isTie&&w===2?`<div class="winner-label" style="--wc1:${wc1};--wc2:${wc2}">Favorito del público</div>`:''}
+        <div class="bar" style="width:80%">
+          <div class="r ${w===1?'win':''}" style="width:${pct1}%"></div>
+          <div class="b ${w===2?'win':''}" style="width:${pct2}%"></div>
         </div>
-      </div>
-      <div class="bar">
-        <div class="r ${!isTie&&w===1?'win':''}" style="width:${pct1}%"></div>
-        <div class="b ${!isTie&&w===2?'win':''}" style="width:${pct2}%"></div>
-      </div>
-      <div style="margin-top:2vh;font-size:clamp(10px,1.3vw,14px);color:#333;letter-spacing:3px">
-        ${(d.votes1||0)+(d.votes2||0)} VOTOS TOTALES
+        <div class="total-votes">${v1+v2} VOTOS TOTALES</div>
       </div>`;
-    return;
   }
 }
 
