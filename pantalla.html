@@ -332,13 +332,8 @@ function render(d) {
     content.innerHTML = `
       <div class="idle-wrap">
         <img class="idle-sj-logo" src="img/Logo-SAN-JORGE.png" alt="San Jorge">
-        <div class="idle-phase">${d.phase||''}</div>
-        <div class="idle-battle">
-          <span style="color:var(--sj2)">${d.mc1||''}</span>
-          <span class="idle-sep"> VS </span>
-          <span>${d.mc2||''}</span>
-        </div>
-        <div class="idle-sub">PRÓXIMA BATALLA</div>
+        <div class="idle-title">VOTO<br>SAN JORGE</div>
+        <div class="idle-sub">ESPERA LA SIGUIENTE BATALLA</div>
       </div>`;
     return;
   }
