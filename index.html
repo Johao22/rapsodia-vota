@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapsodia — Panel de Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0a;--card:#141414;--border:#222;--text:#e5e5e5;--muted:#777;--red:#E24B4A;--blue:#378ADD;--amber:#EF9F27;--green:#1D9E75}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px}
+h1{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:var(--red);margin-bottom:4px}
+.subtitle{color:var(--muted);font-size:13px;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px}
+.card h2{font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px;margin-top:12px}
+input,select{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:#1a1a1a;color:var(--text);font-size:14px;font-family:inherit}
+input:focus,select:focus{outline:none;border-color:var(--red)}
+.btn{padding:12px 24px;border-radius:12px;border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:inherit;transition:all .2s;width:100%;margin-top:12px}
+.btn:active{transform:scale(.97)}
+.btn-red{background:var(--red);color:#fff}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-amber{background:var(--amber);color:#000}
+.btn-green{background:var(--green);color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn:disabled{opacity:.3;cursor:not-allowed}
+.status{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:1px}
+.status-idle{background:#1a1a1a;color:var(--muted)}
+.status-scan{background:rgba(226,75,74,.15);color:var(--red)}
+.status-voting{background:rgba(239,159,39,.15);color:var(--amber)}
+.status-results{background:rgba(55,138,221,.15);color:var(--blue)}
+.votes-display{display:flex;gap:12px;margin-top:16px}
+.votes-display .mc{flex:1;text-align:center;padding:14px;border-radius:12px;background:#1a1a1a}
+.votes-display .mc-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px}
+.votes-display .mc-count{font-size:28px;font-weight:700;margin-top:4px}
+.vote-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:#1a1a1a;margin-top:12px;gap:2px}
+.links-box{background:#1a1a1a;border-radius:10px;padding:12px;margin-top:10px;font-size:12px;word-break:break-all}
+.links-box a{color:var(--blue);text-decoration:none}
+.log{font-size:12px;color:var(--muted);max-height:150px;overflow-y:auto;margin-top:10px;font-family:monospace;background:#111;padding:10px;border-radius:8px}
+.rounds-list{display:flex;flex-direction:column;gap:6px}
+.round-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:#1a1a1a;cursor:pointer;font-size:13px;border:1px solid transparent;transition:all .2s}
+.round-item:hover{border-color:var(--border)}
+.round-item.active{border-color:var(--red);background:rgba(226,75,74,.08)}
+.round-item .phase{color:var(--muted);font-size:11px;min-width:90px}
+.badge{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(29,158,117,.15);color:var(--green);margin-left:auto}
+.timer-display{font-family:'Bebas Neue',sans-serif;font-size:48px;text-align:center;color:var(--amber);margin:10px 0}
+#connection-status{position:fixed;top:10px;right:10px;padding:4px 10px;border-radius:8px;font-size:11px;z-index:99}
+.connected{background:rgba(29,158,117,.2);color:var(--green)}
+.disconnected{background:rgba(226,75,74,.2);color:var(--red)}
+</style>
+</head>
+<body>
+
+<div id="connection-status" class="disconnected">Conectando...</div>
+
+<h1>RAPSODIA — CONTROL</h1>
+<p class="subtitle">Panel del operador — no compartir con el público</p>
+
+<div class="grid">
+  <div class="card">
+    <h2>Batallas del evento</h2>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="mc1-input" placeholder="MC Rojo">
+      <input type="text" id="mc2-input" placeholder="MC Azul">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <select id="phase-input">
+        <option>Octavos de final</option>
+        <option>Cuartos de final</option>
+        <option>Semifinal</option>
+        <option>GRAN FINAL</option>
+        <option>Exhibición</option>
+      </select>
+      <button class="btn btn-outline" style="width:auto;margin:0;padding:8px 16px" onclick="addRound()">+ Agregar</button>
+    </div>
+    <div id="rounds-list" class="rounds-list" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Estado actual</h2>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span>Fase:</span>
+      <span id="phase-badge" class="status status-idle">ESPERANDO</span>
+    </div>
+    <div id="current-battle" style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;margin-top:10px;color:var(--muted)">
+      Selecciona una batalla
+    </div>
+    <div id="timer-display" class="timer-display" style="display:none">30</div>
+    <div id="votes-display" class="votes-display" style="display:none">
+      <div class="mc">
+        <div class="mc-name" id="v-mc1" style="color:var(--red)">—</div>
+        <div class="mc-count" id="v-count1">0</div>
+      </div>
+      <div class="mc">
+        <div class="mc-name" id="v-mc2" style="color:var(--blue)">—</div>
+        <div class="mc-count" id="v-count2">0</div>
+      </div>
+    </div>
+    <div id="vote-bar" class="vote-bar" style="display:none">
+      <div id="bar1" style="background:var(--red);transition:width .4s"></div>
+      <div id="bar2" style="background:var(--blue);transition:width .4s"></div>
+    </div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Controles</h2>
+    <label>Duración de votación (segundos)</label>
+    <input type="number" id="duration-input" value="30" min="10" max="120">
+    <button class="btn btn-red" id="btn-scan" onclick="startScan()" disabled>
+      Mostrar QR en pantalla
+    </button>
+    <button class="btn btn-amber" id="btn-vote" onclick="startVoting()" disabled>
+      Abrir votación
+    </button>
+    <button class="btn btn-blue" id="btn-results" onclick="showResults()" disabled>
+      Mostrar resultados
+    </button>
+    <button class="btn btn-outline" id="btn-reset" onclick="resetCurrent()">
+      Reiniciar batalla actual
+    </button>
+  </div>
+
+  <div class="card">
+    <h2>Links del evento</h2>
+    <div class="links-box">
+      <strong>Pantalla LED:</strong><br>
+      <a id="link-screen" href="#" target="_blank">Cargando...</a>
+    </div>
+    <div class="links-box">
+      <strong>Votación (público):</strong><br>
+      <a id="link-vote" href="#" target="_blank">Cargando...</a>
+    </div>
+    <div class="links-box">
+      <strong>Instrucciones:</strong><br>
+      1. Abre "Pantalla LED" en la laptop conectada a la LED<br>
+      2. Pon esa pestaña en pantalla completa (F11)<br>
+      3. Controla todo desde este panel
+    </div>
+    <h2 style="margin-top:16px">Log</h2>
+    <div id="log" class="log">Sistema listo.<br></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/config.js"></script>
+<script>
+const app = firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.database();
+const eventRef = db.ref('rapsodia_event');
+
+let currentRoundId = null;
+let rounds = [];
+let timerInterval = null;
+
+const $ = id => document.getElementById(id);
+function log(msg) {
+  const el = $('log');
+  const time = new Date().toLocaleTimeString();
+  el.innerHTML += `[${time}] ${msg}<br>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+db.ref('.info/connected').on('value', snap => {
+  const el = $('connection-status');
+  if (snap.val()) {
+    el.textContent = 'Conectado';
+    el.className = 'connected';
+    log('Firebase conectado');
+  } else {
+    el.textContent = 'Desconectado';
+    el.className = 'disconnected';
+  }
+});
+
+$('link-screen').href = BASE_URL + '/pantalla.html';
+$('link-screen').textContent = BASE_URL + '/pantalla.html';
+$('link-vote').href = BASE_URL + '/vota.html';
+$('link-vote').textContent = BASE_URL + '/vota.html';
+
+function addRound() {
+  const mc1 = $('mc1-input').value.trim().toUpperCase();
+  const mc2 = $('mc2-input').value.trim().toUpperCase();
+  const phase = $('phase-input').value;
+  if (!mc1 || !mc2) return;
+  const id = Date.now().toString();
+  const round = { id, mc1, mc2, phase, votes1: 0, votes2: 0 };
+  eventRef.child('rounds').child(id).set(round);
+  $('mc1-input').value = '';
+  $('mc2-input').value = '';
+  log(`Batalla agregada: ${mc1} vs ${mc2}`);
+}
+
+eventRef.child('rounds').on('value', snap => {
+  rounds = [];
+  snap.forEach(child => { rounds.push({ ...child.val(), id: child.key }); });
+  renderRounds();
+});
+
+function renderRounds() {
+  const el = $('rounds-list');
+  el.innerHTML = rounds.map(r => `
+    <div class="round-item ${r.id === currentRoundId ? 'active' : ''}" onclick="selectRound('${r.id}')">
+      <span class="phase">${r.phase}</span>
+      <span>${r.mc1} vs ${r.mc2}</span>
+      ${r.votes1 + r.votes2 > 0 ? `<span class="badge">${r.votes1 + r.votes2} votos</span>` : ''}
+    </div>
+  `).join('');
+}
+
+function selectRound(id) {
+  currentRoundId = id;
+  const r = rounds.find(x => x.id === id);
+  if (!r) return;
+  $('current-battle').textContent = `${r.mc1}  VS  ${r.mc2}`;
+  $('current-battle').style.color = 'var(--text)';
+  $('btn-scan').disabled = false;
+  $('btn-vote').disabled = true;
+  $('btn-results').disabled = true;
+  renderRounds();
+  log(`Batalla seleccionada: ${r.mc1} vs ${r.mc2}`);
+
+  eventRef.child('current').update({
+    roundId: id, mc1: r.mc1, mc2: r.mc2, phase: r.phase,
+    status: 'idle', votes1: 0, votes2: 0, timeLeft: 0
+  });
+}
+
+eventRef.child('current').on('value', snap => {
+  const data = snap.val();
+  if (!data) return;
+  updateDisplay(data);
+});
+
+function updateDisplay(data) {
+  const badge = $('phase-badge');
+  badge.className = 'status status-' + (data.status || 'idle');
+  badge.textContent = {idle:'ESPERANDO',scan:'QR VISIBLE',voting:'VOTACIÓN ABIERTA',results:'RESULTADOS'}[data.status] || 'ESPERANDO';
+
+  if (data.mc1) {
+    $('v-mc1').textContent = data.mc1;
+    $('v-mc2').textContent = data.mc2;
+    $('v-count1').textContent = data.votes1 || 0;
+    $('v-count2').textContent = data.votes2 || 0;
+    $('votes-display').style.display = 'flex';
+    $('vote-bar').style.display = 'flex';
+    const total = (data.votes1||0) + (data.votes2||0) || 1;
+    $('bar1').style.width = ((data.votes1||0)/total*100)+'%';
+    $('bar2').style.width = ((data.votes2||0)/total*100)+'%';
+  }
+
+  if (data.status === 'voting' && data.timeLeft > 0) {
+    $('timer-display').style.display = 'block';
+    $('timer-display').textContent = data.timeLeft;
+    $('timer-display').style.color = data.timeLeft <= 10 ? 'var(--red)' : 'var(--amber)';
+  } else {
+    $('timer-display').style.display = 'none';
+  }
+}
+
+function startScan() {
+  if (!currentRoundId) return;
+  eventRef.child('current').update({ status: 'scan' });
+  $('btn-scan').disabled = true;
+  $('btn-vote').disabled = false;
+  log('QR visible en pantalla');
+}
+
+function startVoting() {
+  if (!currentRoundId) return;
+  const duration = parseInt($('duration-input').value) || 30;
+  eventRef.child('current').update({ status: 'voting', timeLeft: duration, votes1: 0, votes2: 0 });
+  eventRef.child('rounds').child(currentRoundId).update({ votes1: 0, votes2: 0 });
+  eventRef.child('voters').child(currentRoundId).remove();
+
+  $('btn-vote').disabled = true;
+  $('btn-results').disabled = true;
+  log(`Votación abierta (${duration}s)`);
+
+  clearInterval(timerInterval);
+  let t = duration;
+  timerInterval = setInterval(() => {
+    t--;
+    eventRef.child('current').update({ timeLeft: t });
+    if (t <= 0) {
+      clearInterval(timerInterval);
+      eventRef.child('current').update({ status: 'closed' });
+      $('btn-results').disabled = false;
+      log('Votación cerrada');
+    }
+  }, 1000);
+}
+
+function showResults() {
+  eventRef.child('current').update({ status: 'results' });
+  $('btn-results').disabled = true;
+  log('Resultados mostrados en pantalla');
+}
+
+function resetCurrent() {
+  clearInterval(timerInterval);
+  if (currentRoundId) {
+    eventRef.child('current').update({ status: 'idle', votes1: 0, votes2: 0, timeLeft: 0 });
+    eventRef.child('rounds').child(currentRoundId).update({ votes1: 0, votes2: 0 });
+    eventRef.child('voters').child(currentRoundId).remove();
+    $('btn-scan').disabled = false;
+    $('btn-vote').disabled = true;
+    $('btn-results').disabled = true;
+    log('Batalla reiniciada');
+  }
+}
+</script>
+</body>
+</html>

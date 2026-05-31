@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Rapsodia — Vota</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0a0a0a;--card:#141414;--border:#222;--text:#e5e5e5;--muted:#666;--red:#E24B4A;--blue:#378ADD;--amber:#EF9F27}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow:hidden}
+.container{width:100%;max-width:400px}
+.header{text-align:center;margin-bottom:20px}
+.header h1{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:6px;color:var(--red)}
+.header .phase{font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:2px}
+.timer{text-align:center;margin-bottom:16px}
+.timer span{display:inline-block;background:#1a1a1a;padding:6px 20px;border-radius:20px;font-size:14px;font-weight:700;color:var(--muted);transition:all .3s}
+.timer span.urgent{background:rgba(226,75,74,.15);color:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.battle-card{background:var(--card);border:2px solid var(--border);border-radius:18px;padding:20px;margin-bottom:10px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;-webkit-user-select:none;user-select:none}
+.battle-card:active:not(.disabled){transform:scale(.97)}
+.battle-card.voted{border-color:var(--selected-color)}
+.battle-card.voted::before{content:'';position:absolute;inset:0;background:var(--selected-color);opacity:.08}
+.battle-card.dimmed{opacity:.3;pointer-events:none}
+.battle-card.disabled{cursor:default;opacity:.5}
+.mc-name{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:4px;line-height:1}
+.mc-votes{font-size:13px;color:var(--muted);margin-top:6px}
+.mc-check{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700}
+.vs{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#333;letter-spacing:6px;margin:8px 0}
+.bar-container{margin-top:16px;height:10px;border-radius:5px;display:flex;overflow:hidden;background:#1a1a1a;gap:2px}
+.bar-container div{transition:width .5s cubic-bezier(.4,0,.2,1)}
+.message{text-align:center;padding:20px;border-radius:14px;background:var(--card);border:1px solid var(--border)}
+.message h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px}
+.message p{font-size:13px;color:var(--muted);margin-top:6px}
+.branding{text-align:center;margin-top:20px;font-size:10px;color:#333;letter-spacing:3px}
+.result-badge{text-align:center;margin-top:12px;font-size:13px;font-weight:700;letter-spacing:2px;padding:8px 16px;border-radius:10px;display:inline-block}
+.confetti{position:fixed;top:-10px;font-size:20px;animation:fall linear forwards;pointer-events:none;z-index:99}
+@keyframes fall{to{top:110vh;opacity:0}}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>RAPSODIA</h1>
+    <div class="phase" id="phase-label">Conectando...</div>
+  </div>
+
+  <div id="content">
+    <div class="message">
+      <h2>Esperando batalla...</h2>
+      <p>Mantén esta página abierta. La votación aparecerá automáticamente.</p>
+    </div>
+  </div>
+
+  <div class="branding">#RAPSODIAPERU &middot; @rapsodia.peru</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/config.js"></script>
+<script>
+const app = firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.database();
+
+let hasVoted = {};
+let currentRoundId = null;
+
+function getVoterId() {
+  let id = localStorage.getItem('rapsodia_voter_id');
+  if (!id) { id = 'v_' + Math.random().toString(36).substr(2, 12); localStorage.setItem('rapsodia_voter_id', id); }
+  return id;
+}
+const VOTER_ID = getVoterId();
+
+function vibrate() { if (navigator.vibrate) navigator.vibrate(30); }
+
+function confetti() {
+  const emojis = ['🎤','🔥','💥','⚡','🎵','👑','🏆'];
+  for (let i = 0; i < 12; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    el.style.left = Math.random()*100+'%';
+    el.style.animationDuration = (1.5+Math.random()*2)+'s';
+    el.style.animationDelay = Math.random()*0.5+'s';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+}
+
+db.ref('rapsodia_event/current').on('value', snap => {
+  const data = snap.val();
+  if (!data) return;
+  currentRoundId = data.roundId;
+  render(data);
+});
+
+function render(data) {
+  const content = document.getElementById('content');
+  const phaseLabel = document.getElementById('phase-label');
+  const voted = hasVoted[data.roundId];
+  const total = (data.votes1||0)+(data.votes2||0)||1;
+  const pct1 = Math.round((data.votes1||0)/total*100);
+  const pct2 = Math.round((data.votes2||0)/total*100);
+
+  if (data.status === 'idle') {
+    phaseLabel.textContent = data.phase || 'Esperando';
+    content.innerHTML = `
+      <div class="message">
+        <h2>${data.mc1 || '???'} VS ${data.mc2 || '???'}</h2>
+        <p>La votación abrirá en un momento. Mantén la página abierta.</p>
+      </div>`;
+    return;
+  }
+
+  if (data.status === 'scan') {
+    phaseLabel.textContent = data.phase;
+    content.innerHTML = `
+      <div class="message">
+        <h2>${data.mc1} VS ${data.mc2}</h2>
+        <p>Prepárate para votar...</p>
+        <div style="margin-top:12px;font-size:24px">🎤</div>
+      </div>`;
+    return;
+  }
+
+  if (data.status === 'voting' || data.status === 'closed') {
+    const isOpen = data.status === 'voting' && (data.timeLeft||0) > 0;
+    const urgent = (data.timeLeft||0) <= 10 && isOpen;
+    phaseLabel.textContent = data.phase;
+
+    content.innerHTML = `
+      ${isOpen ? `<div class="timer"><span class="${urgent?'urgent':''}">${data.timeLeft}s restantes</span></div>` :
+        data.status==='closed' && !voted ? `<div class="timer"><span>Votación cerrada</span></div>` : ''}
+      <div class="battle-card ${voted===1?'voted':voted?'dimmed':!isOpen&&!voted?'disabled':''}"
+           style="--selected-color:var(--red)" onclick="vote(1)">
+        <div class="mc-name" style="color:var(--red)">${data.mc1}</div>
+        <div class="mc-votes">${data.votes1||0} votos${voted?' — '+ pct1+'%':''}</div>
+        ${voted===1?'<div class="mc-check" style="background:var(--red);color:#fff">✓</div>':''}
+      </div>
+      <div class="vs">VS</div>
+      <div class="battle-card ${voted===2?'voted':voted?'dimmed':!isOpen&&!voted?'disabled':''}"
+           style="--selected-color:var(--blue)" onclick="vote(2)">
+        <div class="mc-name" style="color:var(--blue)">${data.mc2}</div>
+        <div class="mc-votes">${data.votes2||0} votos${voted?' — '+ pct2+'%':''}</div>
+        ${voted===2?'<div class="mc-check" style="background:var(--blue);color:#fff">✓</div>':''}
+      </div>
+      <div class="bar-container">
+        <div style="width:${pct1}%;background:var(--red)"></div>
+        <div style="width:${pct2}%;background:var(--blue)"></div>
+      </div>
+      ${voted?'<div style="text-align:center;margin-top:12px;font-size:12px;color:var(--muted)">Voto registrado ✓</div>':''}`;
+    return;
+  }
+
+  if (data.status === 'results') {
+    phaseLabel.textContent = 'Resultado';
+    const w = (data.votes1||0) >= (data.votes2||0) ? 1 : 2;
+    const wName = w===1?data.mc1:data.mc2;
+    const wColor = w===1?'var(--red)':'var(--blue)';
+    if (!content.dataset.confettied) { confetti(); content.dataset.confettied = '1'; }
+
+    content.innerHTML = `
+      <div style="text-align:center">
+        <div style="font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px">Favorito del público</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:${wColor};letter-spacing:4px;text-shadow:0 0 30px ${wColor}40">${wName}</div>
+        <div style="font-size:14px;color:var(--muted);margin-top:4px">${Math.max(pct1,pct2)}% de los votos</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <div style="flex:1;text-align:center;padding:12px;background:#1a1a1a;border-radius:12px;opacity:${w===1?1:.4}">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--red)">${data.mc1}</div>
+          <div style="font-size:22px;font-weight:700">${pct1}%</div>
+          <div style="font-size:11px;color:var(--muted)">${data.votes1||0} votos</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:12px;background:#1a1a1a;border-radius:12px;opacity:${w===2?1:.4}">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--blue)">${data.mc2}</div>
+          <div style="font-size:22px;font-weight:700">${pct2}%</div>
+          <div style="font-size:11px;color:var(--muted)">${data.votes2||0} votos</div>
+        </div>
+      </div>
+      <div class="bar-container" style="margin-top:14px">
+        <div style="width:${pct1}%;background:var(--red);box-shadow:${w===1?'0 0 10px var(--red)':'none'}"></div>
+        <div style="width:${pct2}%;background:var(--blue);box-shadow:${w===2?'0 0 10px var(--blue)':'none'}"></div>
+      </div>`;
+    return;
+  }
+}
+
+function vote(mc) {
+  if (!currentRoundId || hasVoted[currentRoundId]) return;
+  vibrate();
+
+  const voterRef = db.ref(`rapsodia_event/voters/${currentRoundId}/${VOTER_ID}`);
+  voterRef.once('value', snap => {
+    if (snap.exists()) return;
+    voterRef.set(mc);
+    hasVoted[currentRoundId] = mc;
+
+    const field = mc === 1 ? 'votes1' : 'votes2';
+    db.ref(`rapsodia_event/current/${field}`).transaction(v => (v||0)+1);
+    db.ref(`rapsodia_event/rounds/${currentRoundId}/${field}`).transaction(v => (v||0)+1);
+  });
+}
+</script>
+</body>
+</html>

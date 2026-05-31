@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapsodia — Pantalla</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050505;color:#fff;font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
+.screen{width:100%;height:100%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.bg-glow{position:absolute;inset:0;pointer-events:none}
+.bg-glow::before{content:'';position:absolute;left:0;top:0;width:50%;height:100%;background:radial-gradient(ellipse at 30% 50%,rgba(226,75,74,.06) 0%,transparent 60%)}
+.bg-glow::after{content:'';position:absolute;right:0;top:0;width:50%;height:100%;background:radial-gradient(ellipse at 70% 50%,rgba(55,138,221,.06) 0%,transparent 60%)}
+.content{position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3%}
+.phase-label{font-size:clamp(10px,1.4vw,16px);letter-spacing:6px;color:#444;text-transform:uppercase;margin-bottom:1vh}
+.mc-row{display:flex;align-items:center;justify-content:center;width:100%;gap:3%}
+.mc-side{flex:1;text-align:center;transition:all .8s}
+.mc-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,6vw,72px);letter-spacing:5px;line-height:1}
+.mc-name.red{color:#E24B4A}
+.mc-name.blue{color:#378ADD}
+.mc-count{font-size:clamp(40px,8vw,96px);font-weight:700;line-height:1;margin-top:1vh}
+.mc-count span{font-size:clamp(16px,2.5vw,32px);color:#555}
+.mc-label{font-size:clamp(10px,1.3vw,16px);color:#555;margin-top:.5vh;letter-spacing:2px}
+.vs{font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,3vw,36px);color:#222;letter-spacing:8px}
+.center-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5vh;min-width:clamp(80px,12vw,160px)}
+.timer-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:clamp(8px,1vw,16px);padding:1vh 2vw;text-align:center;transition:all .3s}
+.timer-box.urgent{background:rgba(226,75,74,.15);border-color:rgba(226,75,74,.3)}
+.timer-num{font-size:clamp(28px,5vw,56px);font-weight:700;line-height:1;transition:color .3s}
+.timer-label{font-size:clamp(8px,1vw,12px);color:#555;letter-spacing:2px;margin-top:2px}
+.qr-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:clamp(8px,1vw,14px);padding:clamp(4px,0.6vw,10px);display:flex;align-items:center;justify-content:center}
+.qr-text{font-size:clamp(7px,0.9vw,11px);color:#444;letter-spacing:2px;margin-top:4px;text-align:center}
+.bar{display:flex;height:clamp(12px,2vh,28px);border-radius:14px;overflow:hidden;background:#111;gap:2px;width:80%;margin-top:2vh;transition:all .3s}
+.bar div{transition:all .6s cubic-bezier(.4,0,.2,1)}
+.bar .r{background:rgba(226,75,74,.6)}
+.bar .b{background:rgba(55,138,221,.6)}
+.bar .r.win{background:#E24B4A;box-shadow:0 0 20px rgba(226,75,74,.5)}
+.bar .b.win{background:#378ADD;box-shadow:0 0 20px rgba(55,138,221,.5)}
+.footer{position:absolute;bottom:2%;left:0;right:0;text-align:center;font-size:clamp(9px,1.1vw,13px);color:#2a2a2a;letter-spacing:4px;z-index:1}
+.winner-label{font-size:clamp(12px,1.6vw,20px);letter-spacing:6px;font-weight:700;text-transform:uppercase;margin-top:1vh;background:linear-gradient(90deg,var(--wc1),var(--wc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.scan-hero{display:flex;flex-direction:column;align-items:center;gap:3vh}
+.scan-hero .qr-wrap{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:clamp(12px,1.5vw,24px);padding:clamp(12px,2vw,28px);display:flex;align-items:center;gap:clamp(16px,3vw,36px)}
+.scan-hero .cta{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,52px);letter-spacing:4px}
+.scan-hero .url{font-size:clamp(10px,1.4vw,16px);color:#555;letter-spacing:2px}
+.scan-hero .waiting{font-size:clamp(10px,1.2vw,14px);color:#333;letter-spacing:3px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes glow{0%,100%{opacity:.2}50%{opacity:.5}}
+.winner-glow{animation:glow 2s ease-in-out infinite}
+#qr-canvas{border-radius:4px}
+
+.idle-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vh}
+.idle-logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,8vw,80px);letter-spacing:8px;color:#E24B4A}
+.idle-sub{font-size:clamp(12px,1.5vw,18px);color:#333;letter-spacing:6px}
+</style>
+</head>
+<body>
+
+<div class="screen">
+  <div class="bg-glow"></div>
+  <div class="content" id="content">
+    <div class="idle-screen">
+      <div class="idle-logo">RAPSODIA</div>
+      <div class="idle-sub">CONECTANDO...</div>
+    </div>
+  </div>
+  <div class="footer">RAPSODIA PERÚ &middot; #RAPSODIAPERU &middot; @RAPSODIA.PERU</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="js/config.js"></script>
+<script>
+const app = firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.database();
+const content = document.getElementById('content');
+const VOTE_URL = BASE_URL + '/vota.html';
+
+let qrDataUrl = null;
+
+async function generateQR() {
+  try {
+    qrDataUrl = await QRCode.toDataURL(VOTE_URL, {
+      width: 200, margin: 1, color: { dark: '#000000', light: '#ffffff' },
+      errorCorrectionLevel: 'M'
+    });
+  } catch(e) {
+    console.error('QR error:', e);
+  }
+}
+generateQR();
+
+function qrImg(size) {
+  if (!qrDataUrl) return '';
+  return `<img src="${qrDataUrl}" width="${size}" height="${size}" style="border-radius:6px">`;
+}
+
+function animNum(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = parseInt(el.dataset.current || '0');
+  const diff = target - start;
+  const startTime = Date.now();
+  const duration = 600;
+  function tick() {
+    const p = Math.min((Date.now()-startTime)/duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(start + diff * ease);
+    if (p < 1) requestAnimationFrame(tick);
+    else el.dataset.current = target;
+  }
+  requestAnimationFrame(tick);
+}
+
+db.ref('rapsodia_event/current').on('value', snap => {
+  const d = snap.val();
+  if (!d) {
+    content.innerHTML = `<div class="idle-screen"><div class="idle-logo">RAPSODIA</div><div class="idle-sub">PRÓXIMA BATALLA EN BREVE</div></div>`;
+    return;
+  }
+  render(d);
+});
+
+function render(d) {
+  const total = (d.votes1||0)+(d.votes2||0)||1;
+  const pct1 = Math.round((d.votes1||0)/total*100);
+  const pct2 = Math.round((d.votes2||0)/total*100);
+  const w = (d.votes1||0) >= (d.votes2||0) ? 1 : 2;
+  const qrSize = Math.min(Math.floor(window.innerHeight * 0.18), 160);
+  const qrSizeSm = Math.min(Math.floor(window.innerHeight * 0.1), 80);
+
+  if (d.status === 'idle') {
+    content.innerHTML = `
+      <div class="idle-screen">
+        <div class="idle-logo">RAPSODIA</div>
+        <div class="phase-label">${d.phase || ''}</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,3.5vw,40px);letter-spacing:3px;color:#555">
+          ${d.mc1||''} <span style="color:#222;margin:0 10px">VS</span> ${d.mc2||''}
+        </div>
+        <div class="idle-sub">PRÓXIMA BATALLA</div>
+      </div>`;
+    return;
+  }
+
+  if (d.status === 'scan') {
+    content.innerHTML = `
+      <div class="scan-hero">
+        <div class="phase-label">${d.phase}</div>
+        <div class="mc-row" style="margin-bottom:1vh">
+          <div class="mc-side"><div class="mc-name red">${d.mc1}</div></div>
+          <div class="vs">VS</div>
+          <div class="mc-side"><div class="mc-name blue">${d.mc2}</div></div>
+        </div>
+        <div class="qr-wrap">
+          ${qrImg(qrSize)}
+          <div>
+            <div class="cta">ESCANEA Y VOTA</div>
+            <div class="url">${VOTE_URL.replace('https://','')}</div>
+          </div>
+        </div>
+        <div class="waiting">Votación abre en segundos...</div>
+      </div>`;
+    return;
+  }
+
+  if (d.status === 'voting' || d.status === 'closed') {
+    const isOpen = d.status === 'voting' && (d.timeLeft||0) > 0;
+    const urgent = isOpen && (d.timeLeft||0) <= 10;
+
+    content.innerHTML = `
+      <div class="phase-label">${d.phase} &middot; VOTACIÓN ${isOpen?'ABIERTA':'CERRADA'}</div>
+      <div class="mc-row">
+        <div class="mc-side">
+          <div class="mc-name red">${d.mc1}</div>
+          <div class="mc-count"><span id="count1">${d.votes1||0}</span></div>
+          <div class="mc-label">votos</div>
+        </div>
+        <div class="center-col">
+          ${isOpen ? `
+            <div class="timer-box ${urgent?'urgent':''}">
+              <div class="timer-num" style="color:${urgent?'#E24B4A':'#fff'}">${d.timeLeft}</div>
+              <div class="timer-label">SEG</div>
+            </div>` : `
+            <div class="timer-box">
+              <div class="timer-num" style="color:#555;font-size:clamp(14px,2vw,24px)">CERRADA</div>
+            </div>`}
+          <div class="qr-box">
+            ${qrImg(qrSizeSm)}
+          </div>
+          <div class="qr-text">ESCANEA</div>
+        </div>
+        <div class="mc-side">
+          <div class="mc-name blue">${d.mc2}</div>
+          <div class="mc-count"><span id="count2">${d.votes2||0}</span></div>
+          <div class="mc-label">votos</div>
+        </div>
+      </div>
+      <div class="bar">
+        <div class="r" style="width:${pct1}%"></div>
+        <div class="b" style="width:${pct2}%"></div>
+      </div>`;
+    return;
+  }
+
+  if (d.status === 'results') {
+    const wc1 = w===1 ? '#E24B4A' : '#378ADD';
+    const wc2 = w===1 ? '#F2A623' : '#5DCAA5';
+    content.innerHTML = `
+      <div class="phase-label">${d.phase} &middot; RESULTADO DEL PÚBLICO</div>
+      <div class="mc-row">
+        <div class="mc-side" style="opacity:${w===2?'.25':'1'};transform:scale(${w===1?'1.06':'0.95'})">
+          <div class="mc-name red" style="${w===1?'text-shadow:0 0 40px rgba(226,75,74,.5)':''}">${d.mc1}</div>
+          <div class="mc-count">${pct1}<span>%</span></div>
+          <div class="mc-label">${d.votes1||0} votos</div>
+          ${w===1?`<div class="winner-label" style="--wc1:${wc1};--wc2:${wc2}">Favorito del público</div>`:''}
+        </div>
+        <div class="vs">VS</div>
+        <div class="mc-side" style="opacity:${w===1?'.25':'1'};transform:scale(${w===2?'1.06':'0.95'})">
+          <div class="mc-name blue" style="${w===2?'text-shadow:0 0 40px rgba(55,138,221,.5)':''}">${d.mc2}</div>
+          <div class="mc-count">${pct2}<span>%</span></div>
+          <div class="mc-label">${d.votes2||0} votos</div>
+          ${w===2?`<div class="winner-label" style="--wc1:${wc1};--wc2:${wc2}">Favorito del público</div>`:''}
+        </div>
+      </div>
+      <div class="bar">
+        <div class="r ${w===1?'win':''}" style="width:${pct1}%"></div>
+        <div class="b ${w===2?'win':''}" style="width:${pct2}%"></div>
+      </div>
+      <div style="margin-top:2vh;font-size:clamp(10px,1.3vw,14px);color:#333;letter-spacing:3px">
+        ${(d.votes1||0)+(d.votes2||0)} VOTOS TOTALES
+      </div>`;
+    return;
+  }
+}
+
+window.addEventListener('resize', () => generateQR());
+</script>
+</body>
+</html>
