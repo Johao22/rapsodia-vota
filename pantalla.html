@@ -3,168 +3,286 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Voto San Jorge — Pantalla</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Voto San Jorge</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --red:#CC1A1A;--red2:#E24B4A;--gold:#D4A017;--gold2:#F2C94C;
-  --blue:#378ADD;--bg:#060608;--card:rgba(255,255,255,.04);
+  --sj:#CC0000; --sj2:#E8192C; --sj3:#FF3333;
+  --gold:#D4A017; --gold2:#F2C94C;
+  --bg:#080808;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#fff;overflow:hidden;width:100vw;height:100vh}
 
-/* ── BRAND BAR ── */
+body{
+  font-family:'Barlow Condensed',sans-serif;
+  background:var(--bg);color:#fff;
+  overflow:hidden;width:100vw;height:100vh;
+}
+
+/* ══ BACKGROUND ══ */
+.bg{position:fixed;inset:0;z-index:0}
+.bg-noise{
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.4;pointer-events:none;
+}
+.bg-gradient{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 0%,   rgba(204,0,0,.18) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 100%,  rgba(204,0,0,.08) 0%,transparent 60%),
+    radial-gradient(ellipse 80% 50% at 50% 50%,   rgba(10,0,0,1) 20%,transparent 100%);
+}
+.bg-lines{
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,.015) 60px);
+}
+
+/* ══ SAN JORGE WATERMARK ══ */
+.sj-watermark{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;
+}
+.sj-watermark img{
+  width:clamp(200px,38vw,520px);opacity:.06;
+  filter:grayscale(1) brightness(10);
+  animation:breathe 6s ease-in-out infinite;
+}
+@keyframes breathe{0%,100%{opacity:.06;transform:scale(1)}50%{opacity:.09;transform:scale(1.02)}}
+
+/* ══ BRAND BAR ══ */
 .brand-bar{
-  position:absolute;top:0;left:0;right:0;z-index:10;
+  position:fixed;top:0;left:0;right:0;z-index:20;
   display:flex;align-items:center;justify-content:space-between;
-  padding:clamp(8px,1.2vh,18px) clamp(16px,2.5vw,40px);
-  background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,transparent 100%);
+  padding:clamp(8px,1.5vh,20px) clamp(16px,3vw,48px);
+  background:linear-gradient(180deg,rgba(0,0,0,.85) 0%,transparent 100%);
 }
-.brand-bar .logos{display:flex;align-items:center;gap:clamp(8px,1.5vw,20px)}
-.brand-bar img{height:clamp(28px,4.5vh,56px);object-fit:contain}
-.brand-bar .divider{width:1px;height:clamp(24px,3.5vh,44px);background:rgba(255,255,255,.15)}
-.brand-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(13px,2vw,26px);letter-spacing:5px;color:#fff;text-align:center}
-.brand-title span{color:var(--gold)}
-.brand-tag{font-size:clamp(9px,1vw,13px);letter-spacing:3px;color:rgba(255,255,255,.3);text-align:right}
+.brand-left{display:flex;align-items:center;gap:clamp(10px,1.5vw,22px)}
+.sj-logo-bar{height:clamp(32px,5vh,60px);object-fit:contain;filter:drop-shadow(0 0 12px rgba(232,25,44,.5))}
+.rsd-logo-bar{height:clamp(26px,4vh,48px);object-fit:contain;opacity:.8}
+.bar-sep{width:1px;height:clamp(26px,4vh,44px);background:rgba(255,255,255,.12)}
+.brand-center{
+  position:absolute;left:50%;transform:translateX(-50%);
+  font-family:'Anton',sans-serif;font-size:clamp(14px,2.2vw,28px);
+  letter-spacing:6px;color:#fff;text-align:center;white-space:nowrap;
+}
+.brand-center .sj-red{color:var(--sj2)}
+.brand-tag{font-size:clamp(9px,1vw,13px);letter-spacing:3px;color:rgba(255,255,255,.25)}
 
-/* ── FOOTER ── */
+/* ══ FOOTER ══ */
 .footer{
-  position:absolute;bottom:0;left:0;right:0;z-index:10;
-  display:flex;align-items:center;justify-content:center;gap:2vw;
-  padding:clamp(6px,1vh,14px) 2vw;
-  background:linear-gradient(0deg,rgba(0,0,0,.6) 0%,transparent 100%);
-  font-size:clamp(8px,0.9vw,12px);color:rgba(255,255,255,.2);letter-spacing:4px;
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:clamp(6px,1vh,14px) clamp(16px,3vw,48px);
+  background:linear-gradient(0deg,rgba(0,0,0,.75) 0%,transparent 100%);
+  font-size:clamp(8px,1vw,12px);letter-spacing:4px;color:rgba(255,255,255,.18);
 }
-.footer .dot{color:rgba(255,255,255,.1)}
+.footer-sj{color:rgba(204,0,0,.5);font-weight:700}
 
-/* ── BG FX ── */
-.bg-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.bg-fx .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.07;animation:drift 12s ease-in-out infinite}
-.bg-fx .blob1{width:50vw;height:50vw;background:var(--red);left:-10%;top:-10%;animation-delay:0s}
-.bg-fx .blob2{width:40vw;height:40vw;background:var(--gold);right:-10%;bottom:-10%;animation-delay:-4s}
-.bg-fx .blob3{width:35vw;height:35vw;background:var(--blue);right:10%;top:20%;animation-delay:-8s}
-@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(3%,4%) scale(1.05)}66%{transform:translate(-3%,-2%) scale(.97)}}
-
-/* ── CONTENT ── */
+/* ══ CONTENT ══ */
 .content{
-  position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:clamp(60px,10vh,100px) clamp(16px,3vw,60px) clamp(40px,6vh,70px);
+  position:relative;z-index:10;width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:clamp(70px,12vh,110px) clamp(20px,4vw,70px) clamp(44px,7vh,80px);
 }
 
-/* ── IDLE ── */
-.idle-wrap{display:flex;flex-direction:column;align-items:center;gap:2.5vh;animation:fadeUp .6s ease}
-.idle-logo-img{height:clamp(60px,10vh,110px);object-fit:contain;filter:drop-shadow(0 0 30px rgba(204,26,26,.4))}
-.idle-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,4vw,50px);letter-spacing:8px;color:var(--gold)}
-.idle-battle{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5.5vw,70px);letter-spacing:4px;color:#fff;text-align:center}
-.idle-battle .sep{color:#333;margin:0 1vw}
-.idle-sub{font-size:clamp(10px,1.2vw,16px);color:#444;letter-spacing:5px;animation:pulse 2.5s ease-in-out infinite}
-.idle-phase{font-size:clamp(10px,1.3vw,16px);color:var(--red2);letter-spacing:4px}
+/* ══ IDLE ══ */
+.idle-wrap{display:flex;flex-direction:column;align-items:center;gap:clamp(10px,2vh,28px);animation:slideUp .7s cubic-bezier(.2,0,.2,1)}
+.idle-sj-logo{
+  height:clamp(80px,16vh,180px);object-fit:contain;
+  filter:drop-shadow(0 0 40px rgba(232,25,44,.6));
+  animation:logoPulse 3s ease-in-out infinite;
+}
+@keyframes logoPulse{0%,100%{filter:drop-shadow(0 0 30px rgba(232,25,44,.5))}50%{filter:drop-shadow(0 0 60px rgba(232,25,44,.9))}}
+.idle-event{
+  font-family:'Anton',sans-serif;font-size:clamp(14px,2vw,24px);
+  letter-spacing:8px;color:rgba(255,255,255,.35);
+}
+.idle-title{
+  font-family:'Anton',sans-serif;font-size:clamp(40px,8vw,100px);
+  letter-spacing:6px;line-height:.95;text-align:center;
+  color:var(--sj2);text-shadow:0 0 60px rgba(232,25,44,.4);
+}
+.idle-battle{
+  font-family:'Anton',sans-serif;font-size:clamp(32px,6vw,80px);
+  letter-spacing:4px;color:#fff;text-align:center;line-height:1;
+}
+.idle-sep{color:rgba(255,255,255,.15);margin:0 .5vw}
+.idle-sub{
+  font-size:clamp(12px,1.5vw,18px);letter-spacing:6px;
+  color:rgba(255,255,255,.25);animation:blink 2.5s ease-in-out infinite;
+}
+.idle-phase{font-size:clamp(11px,1.4vw,17px);letter-spacing:4px;color:var(--sj2);font-weight:700}
 
-/* ── SCAN ── */
-.scan-wrap{display:flex;flex-direction:column;align-items:center;gap:3vh;animation:fadeUp .5s ease}
-.scan-names{display:flex;align-items:center;gap:3vw;margin-bottom:.5vh}
-.scan-mc{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6.5vw,80px);letter-spacing:4px}
-.scan-mc.r{color:var(--red2)}
-.scan-mc.b{color:var(--blue)}
-.scan-vs{font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,2.5vw,32px);color:#333;letter-spacing:6px}
+/* ══ SCAN ══ */
+.scan-wrap{display:flex;flex-direction:column;align-items:center;gap:clamp(10px,2.5vh,32px);animation:slideUp .6s cubic-bezier(.2,0,.2,1)}
+.scan-phase{font-size:clamp(11px,1.4vw,17px);letter-spacing:5px;color:var(--sj2);font-weight:700}
+.scan-names{display:flex;align-items:center;gap:3vw}
+.scan-mc{font-family:'Anton',sans-serif;font-size:clamp(40px,7.5vw,100px);letter-spacing:3px;line-height:1}
+.scan-mc.r{color:var(--sj2);text-shadow:0 0 40px rgba(232,25,44,.5)}
+.scan-mc.b{color:#fff}
+.scan-vs{font-family:'Anton',sans-serif;font-size:clamp(18px,2.8vw,36px);color:#2a2a2a;letter-spacing:6px}
 .scan-card{
-  display:flex;align-items:center;gap:clamp(20px,4vw,50px);
+  display:flex;align-items:center;gap:clamp(24px,4vw,56px);
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(204,0,0,.3);
+  border-radius:clamp(16px,2vw,28px);
+  padding:clamp(18px,3vw,40px) clamp(28px,5vw,64px);
+  box-shadow:0 0 80px rgba(204,0,0,.12),inset 0 1px 0 rgba(255,255,255,.05);
+  position:relative;overflow:hidden;
+}
+.scan-card::before{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:conic-gradient(transparent 0deg,rgba(204,0,0,.06) 60deg,transparent 120deg);
+  animation:rotate 8s linear infinite;
+}
+@keyframes rotate{to{transform:rotate(360deg)}}
+.qr-frame{
+  position:relative;padding:8px;background:#fff;border-radius:10px;
+  box-shadow:0 0 0 3px rgba(204,0,0,.4),0 0 30px rgba(204,0,0,.25);
+  animation:qrPulse 2s ease-in-out infinite;
+}
+@keyframes qrPulse{0%,100%{box-shadow:0 0 0 3px rgba(204,0,0,.4),0 0 30px rgba(204,0,0,.25)}50%{box-shadow:0 0 0 5px rgba(232,25,44,.7),0 0 50px rgba(232,25,44,.5)}}
+.scan-cta{position:relative;z-index:1}
+.scan-cta-main{font-family:'Anton',sans-serif;font-size:clamp(36px,6vw,72px);letter-spacing:4px;line-height:.95;color:#fff}
+.scan-cta-main span{color:var(--sj2)}
+.scan-url{font-size:clamp(11px,1.3vw,17px);color:rgba(255,255,255,.3);letter-spacing:2px;margin-top:.8vh}
+.scan-wait{font-size:clamp(10px,1.1vw,14px);letter-spacing:4px;color:rgba(255,255,255,.2);animation:blink 2s ease-in-out infinite}
+
+/* ══ VOTING ══ */
+.vote-wrap{display:flex;flex-direction:column;align-items:center;width:100%;gap:clamp(8px,2vh,24px);animation:fadeIn .4s ease}
+.vote-header{display:flex;align-items:center;gap:1.5vw}
+.vote-phase{font-size:clamp(10px,1.3vw,16px);letter-spacing:5px;color:rgba(255,255,255,.3);font-weight:600}
+.vote-status{font-size:clamp(11px,1.4vw,17px);letter-spacing:4px;font-weight:700}
+.vote-status.open{color:var(--sj2)}
+.vote-status.closed{color:#333}
+
+.mc-arena{display:flex;align-items:stretch;justify-content:center;width:100%;gap:0;position:relative}
+.mc-panel{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:clamp(12px,2.5vh,32px) clamp(10px,2vw,28px);gap:clamp(4px,1vh,12px);
+}
+.mc-panel.left{
+  background:linear-gradient(135deg,rgba(204,0,0,.12) 0%,transparent 60%);
+  border-radius:clamp(16px,2vw,24px) 0 0 clamp(16px,2vw,24px);
+  border:1px solid rgba(204,0,0,.2);border-right:none;
+}
+.mc-panel.right{
+  background:linear-gradient(225deg,rgba(255,255,255,.06) 0%,transparent 60%);
+  border-radius:0 clamp(16px,2vw,24px) clamp(16px,2vw,24px) 0;
+  border:1px solid rgba(255,255,255,.08);border-left:none;
+}
+.mc-tag{font-size:clamp(9px,1vw,13px);letter-spacing:4px;font-weight:700}
+.mc-tag.r{color:var(--sj2)}
+.mc-tag.b{color:rgba(255,255,255,.35)}
+.mc-name-v{font-family:'Anton',sans-serif;font-size:clamp(36px,6.5vw,86px);letter-spacing:3px;line-height:1}
+.mc-name-v.r{color:var(--sj2);text-shadow:0 0 30px rgba(232,25,44,.4)}
+.mc-name-v.b{color:#fff}
+.mc-votes-n{font-family:'Anton',sans-serif;font-size:clamp(52px,10vw,130px);line-height:1;letter-spacing:-2px}
+.mc-votes-n small{font-family:'Barlow Condensed',sans-serif;font-size:30%;color:rgba(255,255,255,.3);letter-spacing:3px;font-weight:600;vertical-align:middle}
+.mc-pct{font-size:clamp(11px,1.5vw,18px);letter-spacing:3px;color:rgba(255,255,255,.3);font-weight:700}
+
+.center-col{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(8px,1.5vh,18px);min-width:clamp(90px,13vw,170px);
+  padding:0 clamp(6px,1vw,14px);
+}
+.timer-box{
   background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
-  border-radius:clamp(16px,2vw,28px);padding:clamp(16px,2.5vw,36px) clamp(24px,4vw,56px);
-  box-shadow:0 0 60px rgba(212,160,23,.08);
+  border-radius:clamp(10px,1.2vw,18px);padding:clamp(8px,1.5vh,16px) clamp(12px,2vw,24px);
+  text-align:center;transition:all .3s;
 }
-.scan-qr-wrap{position:relative}
-.scan-qr-wrap::after{
-  content:'';position:absolute;inset:-6px;border-radius:10px;
-  border:2px solid var(--gold);opacity:.5;animation:pulse 2s ease-in-out infinite;
+.timer-box.urgent{
+  background:rgba(204,0,0,.18);border-color:rgba(204,0,0,.5);
+  box-shadow:0 0 40px rgba(204,0,0,.3);animation:urgentPulse .8s ease-in-out infinite;
 }
-.scan-cta{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5.5vw,64px);letter-spacing:4px;line-height:1}
-.scan-cta span{color:var(--gold)}
-.scan-url{font-size:clamp(11px,1.3vw,17px);color:#555;letter-spacing:2px;margin-top:.5vh}
-.scan-wait{font-size:clamp(10px,1.1vw,14px);color:#333;letter-spacing:3px;margin-top:.5vh;animation:pulse 2s ease-in-out infinite}
-.scan-phase{font-size:clamp(10px,1.2vw,15px);color:var(--red2);letter-spacing:5px}
+@keyframes urgentPulse{0%,100%{box-shadow:0 0 30px rgba(204,0,0,.25)}50%{box-shadow:0 0 60px rgba(204,0,0,.6)}}
+.timer-num{font-family:'Anton',sans-serif;font-size:clamp(32px,5.5vw,68px);line-height:1}
+.timer-lbl{font-size:clamp(8px,.9vw,12px);letter-spacing:3px;color:rgba(255,255,255,.3);margin-top:2px}
+.qr-mini{background:#fff;border-radius:8px;padding:5px;box-shadow:0 0 0 2px rgba(204,0,0,.3)}
+.qr-lbl{font-size:clamp(7px,.8vw,11px);letter-spacing:2px;color:rgba(255,255,255,.2);margin-top:3px}
+.vs-badge{
+  font-family:'Anton',sans-serif;font-size:clamp(16px,2.2vw,28px);
+  letter-spacing:6px;color:rgba(255,255,255,.1);
+}
 
-/* ── VOTING ── */
-.vote-wrap{display:flex;flex-direction:column;align-items:center;width:100%;gap:2vh;animation:fadeIn .4s ease}
-.vote-phase{font-size:clamp(10px,1.2vw,15px);letter-spacing:6px;color:#444}
-.vote-status{font-size:clamp(10px,1.2vw,15px);letter-spacing:4px;font-weight:700}
-.vote-status.open{color:var(--gold)}
-.vote-status.closed{color:#444}
-.mc-row{display:flex;align-items:center;justify-content:center;width:100%;gap:2%}
-.mc-side{flex:1;text-align:center;transition:all .6s}
-.mc-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,6vw,80px);letter-spacing:4px;line-height:1}
-.mc-name.r{color:var(--red2)}
-.mc-name.b{color:var(--blue)}
-.mc-count{font-size:clamp(48px,9vw,108px);font-weight:700;line-height:1;margin-top:.5vh}
-.mc-count small{font-size:35%;color:#444;font-weight:400}
-.mc-lbl{font-size:clamp(9px,1.1vw,14px);color:#444;letter-spacing:3px;margin-top:.3vh}
-.center-col{display:flex;flex-direction:column;align-items:center;gap:1.5vh;min-width:clamp(90px,13vw,170px)}
-.timer-box{background:var(--card);border:1px solid rgba(255,255,255,.1);border-radius:clamp(10px,1.2vw,18px);padding:1.2vh 2vw;text-align:center;transition:all .3s}
-.timer-box.urgent{background:rgba(226,75,74,.15);border-color:rgba(226,75,74,.4);box-shadow:0 0 30px rgba(226,75,74,.2)}
-.timer-num{font-size:clamp(28px,5vw,60px);font-weight:700;line-height:1}
-.timer-lbl{font-size:clamp(8px,.9vw,12px);color:#444;letter-spacing:3px;margin-top:2px}
-.qr-mini{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px}
-.qr-lbl{font-size:clamp(7px,.8vw,11px);color:#333;letter-spacing:2px;margin-top:4px}
+/* ══ BAR ══ */
+.bar{
+  display:flex;height:clamp(10px,1.6vh,22px);border-radius:11px;overflow:hidden;
+  background:rgba(255,255,255,.04);gap:2px;width:88%;
+}
+.bar div{transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bar .r{background:rgba(204,0,0,.7)}
+.bar .b{background:rgba(255,255,255,.3)}
+.bar .r.win{background:var(--sj2);box-shadow:0 0 20px rgba(232,25,44,.6)}
+.bar .b.win{background:#aaa;box-shadow:0 0 20px rgba(255,255,255,.3)}
 
-/* ── BAR ── */
-.bar{display:flex;height:clamp(10px,1.8vh,24px);border-radius:12px;overflow:hidden;background:#111;gap:2px;width:85%;transition:all .3s}
-.bar div{transition:width .7s cubic-bezier(.4,0,.2,1)}
-.bar .r{background:rgba(226,75,74,.65)}
-.bar .b{background:rgba(55,138,221,.65)}
-.bar .r.win{background:var(--red2);box-shadow:0 0 20px rgba(226,75,74,.5)}
-.bar .b.win{background:var(--blue);box-shadow:0 0 20px rgba(55,138,221,.5)}
+/* ══ RESULTS ══ */
+.result-wrap{display:flex;flex-direction:column;align-items:center;width:100%;gap:clamp(8px,2vh,24px);animation:slideUp .7s cubic-bezier(.2,0,.2,1)}
+.result-label{font-size:clamp(10px,1.3vw,16px);letter-spacing:6px;color:rgba(255,255,255,.3);font-weight:600}
+.winner-name{font-family:'Anton',sans-serif;font-size:clamp(52px,10vw,130px);letter-spacing:4px;line-height:.95;color:var(--sj2);text-shadow:0 0 60px rgba(232,25,44,.6),0 0 120px rgba(232,25,44,.2)}
+.winner-pct{font-family:'Anton',sans-serif;font-size:clamp(24px,4vw,52px);color:rgba(255,255,255,.5);letter-spacing:4px}
+.winner-badge{
+  font-size:clamp(11px,1.4vw,18px);letter-spacing:5px;font-weight:700;
+  color:var(--gold2);text-transform:uppercase;padding:4px 20px;
+  border:1px solid rgba(212,160,23,.3);border-radius:20px;
+  background:rgba(212,160,23,.08);
+}
 
-/* ── RESULTS ── */
-.result-wrap{display:flex;flex-direction:column;align-items:center;width:100%;gap:1.5vh;animation:fadeUp .6s ease}
-.winner-badge{font-size:clamp(9px,1.1vw,14px);letter-spacing:5px;color:var(--gold);margin-top:.8vh;text-transform:uppercase;font-weight:700}
-.total-votes{font-size:clamp(9px,1vw,13px);color:#2a2a2a;letter-spacing:4px;margin-top:1vh}
+/* ══ REPLICA ══ */
+.replica-wrap{display:flex;flex-direction:column;align-items:center;gap:clamp(8px,2vh,24px);width:100%;animation:slideUp .6s cubic-bezier(.2,0,.2,1)}
+.replica-text{
+  font-family:'Anton',sans-serif;font-size:clamp(70px,14vw,180px);
+  letter-spacing:10px;line-height:.9;
+  color:var(--sj2);
+  text-shadow:0 0 60px rgba(232,25,44,.6),0 0 120px rgba(232,25,44,.3);
+  animation:replicaPulse 1s ease-in-out infinite;
+}
+@keyframes replicaPulse{0%,100%{text-shadow:0 0 60px rgba(232,25,44,.6),0 0 120px rgba(232,25,44,.3)}50%{text-shadow:0 0 80px rgba(232,25,44,1),0 0 160px rgba(232,25,44,.6)}}
+.replica-sub{font-size:clamp(12px,1.6vw,20px);letter-spacing:6px;color:rgba(255,255,255,.3);font-weight:600}
 
-/* ── REPLICA ── */
-.replica-wrap{display:flex;flex-direction:column;align-items:center;gap:1vh;width:100%;animation:fadeUp .5s ease}
-.replica-text{font-family:'Bebas Neue',sans-serif;font-size:clamp(60px,11vw,130px);letter-spacing:12px;color:var(--gold);animation:pulse 1.1s ease-in-out infinite;line-height:1}
-.replica-sub{font-size:clamp(11px,1.4vw,18px);color:#555;letter-spacing:5px}
-
-/* ── ANIMATIONS ── */
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+/* ══ ANIMATIONS ══ */
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
-@keyframes shimmer{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 </style>
 </head>
 <body>
 
-<div class="bg-fx">
-  <div class="blob blob1"></div>
-  <div class="blob blob2"></div>
-  <div class="blob blob3"></div>
+<!-- BACKGROUND -->
+<div class="bg">
+  <div class="bg-gradient"></div>
+  <div class="bg-lines"></div>
+  <div class="bg-noise"></div>
 </div>
 
+<!-- SAN JORGE WATERMARK -->
+<div class="sj-watermark">
+  <img src="img/Logo-SAN-JORGE.png" alt="">
+</div>
+
+<!-- BRAND BAR -->
 <div class="brand-bar">
-  <div class="logos">
-    <img src="img/Logo-SAN-JORGE.png" alt="San Jorge">
-    <div class="divider"></div>
-    <img src="img/Logo- RAPSODIA.png" alt="Rapsodia">
+  <div class="brand-left">
+    <img class="sj-logo-bar" src="img/Logo-SAN-JORGE.png" alt="San Jorge">
+    <div class="bar-sep"></div>
+    <img class="rsd-logo-bar" src="img/Logo- RAPSODIA.png" alt="Rapsodia">
   </div>
-  <div class="brand-title">VOTO <span>SAN JORGE</span></div>
+  <div class="brand-center">VOTO <span class="sj-red">SAN JORGE</span></div>
   <div class="brand-tag">#RAPSODIAPERU</div>
 </div>
 
+<!-- CONTENT -->
 <div class="content" id="content">
   <div class="idle-wrap">
-    <img class="idle-logo-img" src="img/Logo- RAPSODIA.png" alt="Rapsodia">
+    <img class="idle-sj-logo" src="img/Logo-SAN-JORGE.png" alt="San Jorge">
     <div class="idle-sub">CONECTANDO...</div>
   </div>
 </div>
 
+<!-- FOOTER -->
 <div class="footer">
-  <span>RAPSODIA PERÚ</span>
-  <span class="dot">&middot;</span>
-  <span>@RAPSODIA.PERU</span>
-  <span class="dot">&middot;</span>
-  <span>#RAPSODIAPERU</span>
-  <span class="dot">&middot;</span>
-  <span style="color:rgba(212,160,23,.4)">AUSPICIADO POR SAN JORGE</span>
+  <span>@RAPSODIA.PERU &nbsp;·&nbsp; #RAPSODIAPERU</span>
+  <span class="footer-sj">AUSPICIADO POR SAN JORGE ®</span>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -172,13 +290,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#fff;overflow:h
 <script src="js/config.js"></script>
 <script>
 const app = firebase.initializeApp(FIREBASE_CONFIG);
-const db = firebase.database();
+const db  = firebase.database();
 const content = document.getElementById('content');
 const VOTE_URL = BASE_URL + '/vota.html';
 const QR_URL = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=4&data=${encodeURIComponent(VOTE_URL)}`;
 
 function qrImg(size) {
-  return `<img src="${QR_URL}" width="${size}" height="${size}" style="border-radius:6px;background:#fff;display:block">`;
+  return `<img src="${QR_URL}" width="${size}" height="${size}" style="display:block;border-radius:4px">`;
 }
 
 let currentData = null;
@@ -189,8 +307,8 @@ db.ref('rapsodia_event/current').on('value', snap => {
   if (!d) {
     content.innerHTML = `
       <div class="idle-wrap">
-        <img class="idle-logo-img" src="img/Logo- RAPSODIA.png" alt="Rapsodia">
-        <div class="idle-title">VOTO SAN JORGE</div>
+        <img class="idle-sj-logo" src="img/Logo-SAN-JORGE.png" alt="San Jorge">
+        <div class="idle-title">VOTO<br>SAN JORGE</div>
         <div class="idle-sub">PRÓXIMA BATALLA EN BREVE</div>
       </div>`;
     return;
@@ -201,23 +319,30 @@ db.ref('rapsodia_event/current').on('value', snap => {
 function render(d) {
   const v1 = d.votes1||0, v2 = d.votes2||0;
   const total = v1+v2||1;
-  const pct1 = Math.round(v1/total*100);
-  const pct2 = Math.round(v2/total*100);
-  const w = v1 >= v2 ? 1 : 2;
+  const pct1  = Math.round(v1/total*100);
+  const pct2  = Math.round(v2/total*100);
+  const w     = v1 >= v2 ? 1 : 2;
   const isTie = v1 === v2;
-  const qrSize = Math.min(Math.floor(window.innerHeight * 0.2), 180);
+  const qrSize = Math.min(Math.floor(window.innerHeight * 0.22), 200);
   const qrSm   = Math.min(Math.floor(window.innerHeight * 0.11), 90);
 
+  /* ── IDLE ── */
   if (d.status === 'idle') {
     content.innerHTML = `
       <div class="idle-wrap">
+        <img class="idle-sj-logo" src="img/Logo-SAN-JORGE.png" alt="San Jorge">
         <div class="idle-phase">${d.phase||''}</div>
-        <div class="idle-battle">${d.mc1||''}<span class="sep">VS</span>${d.mc2||''}</div>
+        <div class="idle-battle">
+          <span style="color:var(--sj2)">${d.mc1||''}</span>
+          <span class="idle-sep"> VS </span>
+          <span>${d.mc2||''}</span>
+        </div>
         <div class="idle-sub">PRÓXIMA BATALLA</div>
       </div>`;
     return;
   }
 
+  /* ── SCAN ── */
   if (d.status === 'scan') {
     content.innerHTML = `
       <div class="scan-wrap">
@@ -228,48 +353,52 @@ function render(d) {
           <div class="scan-mc b">${d.mc2}</div>
         </div>
         <div class="scan-card">
-          <div class="scan-qr-wrap">${qrImg(qrSize)}</div>
-          <div>
-            <div class="scan-cta">ESCANEA<br>Y <span>VOTA</span></div>
+          <div class="qr-frame">${qrImg(qrSize)}</div>
+          <div class="scan-cta">
+            <div class="scan-cta-main">ESCANEA<br>Y <span>VOTA</span></div>
             <div class="scan-url">${VOTE_URL.replace('https://','')}</div>
+            <div class="scan-wait" style="margin-top:.8vh">Votación abre en segundos...</div>
           </div>
         </div>
-        <div class="scan-wait">Votación abre en segundos...</div>
       </div>`;
     return;
   }
 
+  /* ── VOTING / CLOSED ── */
   if (d.status === 'voting' || d.status === 'closed') {
-    const isOpen = d.status === 'voting' && (d.timeLeft||0) > 0;
-    const urgent = isOpen && (d.timeLeft||0) <= 10;
+    const isOpen  = d.status === 'voting' && (d.timeLeft||0) > 0;
+    const urgent  = isOpen && (d.timeLeft||0) <= 10;
     content.innerHTML = `
       <div class="vote-wrap">
-        <div style="display:flex;gap:1vw;align-items:center">
+        <div class="vote-header">
           <div class="vote-phase">${d.phase}</div>
           <div class="vote-status ${isOpen?'open':'closed'}">${isOpen?'· VOTACIÓN ABIERTA':'· VOTACIÓN CERRADA'}</div>
         </div>
-        <div class="mc-row">
-          <div class="mc-side">
-            <div class="mc-name r">${d.mc1}</div>
-            <div class="mc-count" id="c1">${v1}<small> vts</small></div>
-            <div class="mc-lbl">${pct1}%</div>
+        <div class="mc-arena">
+          <div class="mc-panel left">
+            <div class="mc-tag r">MC 1</div>
+            <div class="mc-name-v r">${d.mc1}</div>
+            <div class="mc-votes-n" style="color:var(--sj2)" id="c1">${v1}<small> VTS</small></div>
+            <div class="mc-pct">${pct1}%</div>
           </div>
           <div class="center-col">
             ${isOpen
               ? `<div class="timer-box ${urgent?'urgent':''}">
-                   <div class="timer-num" style="color:${urgent?'#E24B4A':'#fff'}">${d.timeLeft}</div>
+                   <div class="timer-num" style="color:${urgent?'var(--sj2)':'#fff'}">${d.timeLeft}</div>
                    <div class="timer-lbl">SEG</div>
                  </div>`
               : `<div class="timer-box">
-                   <div class="timer-num" style="color:#444;font-size:clamp(12px,1.8vw,22px)">CERRADA</div>
+                   <div class="timer-num" style="color:#2a2a2a;font-size:clamp(12px,1.8vw,22px)">CERRADA</div>
                  </div>`}
+            <div class="vs-badge">VS</div>
             <div class="qr-mini">${qrImg(qrSm)}</div>
             <div class="qr-lbl">ESCANEA</div>
           </div>
-          <div class="mc-side">
-            <div class="mc-name b">${d.mc2}</div>
-            <div class="mc-count" id="c2">${v2}<small> vts</small></div>
-            <div class="mc-lbl">${pct2}%</div>
+          <div class="mc-panel right">
+            <div class="mc-tag b">MC 2</div>
+            <div class="mc-name-v b">${d.mc2}</div>
+            <div class="mc-votes-n" style="color:#fff" id="c2">${v2}<small> VTS</small></div>
+            <div class="mc-pct">${pct2}%</div>
           </div>
         </div>
         <div class="bar">
@@ -280,19 +409,28 @@ function render(d) {
     return;
   }
 
+  /* ── RESULTS ── */
   if (d.status === 'results') {
     if (isTie) {
       content.innerHTML = `
         <div class="replica-wrap">
-          <div class="vote-phase">${d.phase} · RESULTADO</div>
+          <div class="result-label">${d.phase} · RESULTADO DEL PÚBLICO</div>
           <div class="replica-text">RÉPLICA</div>
           <div class="replica-sub">EMPATE — SE DEBE REPETIR LA BATALLA</div>
-          <div class="mc-row" style="margin-top:2vh;width:70%">
-            <div class="mc-side"><div class="mc-name r">${d.mc1}</div><div class="mc-count">${pct1}<small>%</small></div><div class="mc-lbl">${v1} votos</div></div>
-            <div style="font-family:'Bebas Neue',sans-serif;color:#222;letter-spacing:6px;font-size:clamp(18px,2.5vw,32px)">VS</div>
-            <div class="mc-side"><div class="mc-name b">${d.mc2}</div><div class="mc-count">${pct2}<small>%</small></div><div class="mc-lbl">${v2} votos</div></div>
+          <div class="mc-arena" style="width:75%;margin-top:1vh">
+            <div class="mc-panel left" style="gap:4px;padding:14px 20px">
+              <div class="mc-name-v r" style="font-size:clamp(28px,4vw,54px)">${d.mc1}</div>
+              <div class="mc-votes-n" style="color:var(--sj2);font-size:clamp(32px,5vw,64px)">${pct1}<small>%</small></div>
+              <div class="mc-pct">${v1} votos</div>
+            </div>
+            <div class="center-col"><div class="vs-badge">VS</div></div>
+            <div class="mc-panel right" style="gap:4px;padding:14px 20px">
+              <div class="mc-name-v b" style="font-size:clamp(28px,4vw,54px)">${d.mc2}</div>
+              <div class="mc-votes-n" style="color:#fff;font-size:clamp(32px,5vw,64px)">${pct2}<small>%</small></div>
+              <div class="mc-pct">${v2} votos</div>
+            </div>
           </div>
-          <div class="bar" style="width:70%">
+          <div class="bar" style="width:75%">
             <div class="r" style="width:50%"></div>
             <div class="b" style="width:50%"></div>
           </div>
@@ -300,32 +438,37 @@ function render(d) {
       return;
     }
 
-    const winName  = w===1 ? d.mc1 : d.mc2;
-    const winColor = w===1 ? '#E24B4A' : '#378ADD';
-    const winPct   = w===1 ? pct1 : pct2;
+    const wName = w===1 ? d.mc1 : d.mc2;
+    const lName = w===1 ? d.mc2 : d.mc1;
+    const wPct  = w===1 ? pct1  : pct2;
+    const lPct  = w===1 ? pct2  : pct1;
+    const wVts  = w===1 ? v1    : v2;
+    const lVts  = w===1 ? v2    : v1;
+
     content.innerHTML = `
       <div class="result-wrap">
-        <div class="vote-phase">${d.phase} · RESULTADO DEL PÚBLICO</div>
-        <div class="mc-row">
-          <div class="mc-side" style="opacity:${w===2?.25:1};transform:scale(${w===1?1.05:.94});transition:all .8s">
-            <div class="mc-name r" style="${w===1?'text-shadow:0 0 50px rgba(226,75,74,.45)':''}">${d.mc1}</div>
-            <div class="mc-count" style="${w===1?'color:#fff':'color:#444'}">${pct1}<small>%</small></div>
-            <div class="mc-lbl">${v1} votos</div>
-            ${w===1?`<div class="winner-badge">⚡ FAVORITO DEL PÚBLICO</div>`:''}
+        <div class="result-label">${d.phase} · FAVORITO DEL PÚBLICO</div>
+        <div class="winner-name">${wName}</div>
+        <div class="winner-pct">${wPct}%</div>
+        <div class="winner-badge">⚡ GANADOR DE LA VOTACIÓN</div>
+        <div class="mc-arena" style="width:80%;margin-top:1.5vh">
+          <div class="mc-panel left" style="gap:4px;padding:14px 20px;opacity:${w===1?1:.2}">
+            <div class="mc-name-v r" style="font-size:clamp(24px,3.5vw,48px)">${d.mc1}</div>
+            <div class="mc-votes-n" style="color:${w===1?'var(--sj2)':'#333'};font-size:clamp(28px,4.5vw,58px)">${pct1}<small>%</small></div>
+            <div class="mc-pct">${v1} votos</div>
           </div>
-          <div style="font-family:'Bebas Neue',sans-serif;color:#1a1a1a;letter-spacing:8px;font-size:clamp(18px,2.5vw,32px)">VS</div>
-          <div class="mc-side" style="opacity:${w===1?.25:1};transform:scale(${w===2?1.05:.94});transition:all .8s">
-            <div class="mc-name b" style="${w===2?'text-shadow:0 0 50px rgba(55,138,221,.45)':''}">${d.mc2}</div>
-            <div class="mc-count" style="${w===2?'color:#fff':'color:#444'}">${pct2}<small>%</small></div>
-            <div class="mc-lbl">${v2} votos</div>
-            ${w===2?`<div class="winner-badge">⚡ FAVORITO DEL PÚBLICO</div>`:''}
+          <div class="center-col"><div class="vs-badge">VS</div></div>
+          <div class="mc-panel right" style="gap:4px;padding:14px 20px;opacity:${w===2?1:.2}">
+            <div class="mc-name-v b" style="font-size:clamp(24px,3.5vw,48px)">${d.mc2}</div>
+            <div class="mc-votes-n" style="color:${w===2?'#fff':'#333'};font-size:clamp(28px,4.5vw,58px)">${pct2}<small>%</small></div>
+            <div class="mc-pct">${v2} votos</div>
           </div>
         </div>
         <div class="bar" style="width:80%">
           <div class="r ${w===1?'win':''}" style="width:${pct1}%"></div>
           <div class="b ${w===2?'win':''}" style="width:${pct2}%"></div>
         </div>
-        <div class="total-votes">${v1+v2} VOTOS TOTALES</div>
+        <div style="font-size:clamp(9px,1vw,13px);color:rgba(255,255,255,.15);letter-spacing:4px;margin-top:1vh">${v1+v2} VOTOS TOTALES</div>
       </div>`;
   }
 }
