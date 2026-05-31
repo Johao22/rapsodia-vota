@@ -68,7 +68,6 @@ body{background:#050505;color:#fff;font-family:'DM Sans',sans-serif;overflow:hid
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="js/config.js"></script>
 <script>
 const app = firebase.initializeApp(FIREBASE_CONFIG);
@@ -76,11 +75,10 @@ const db = firebase.database();
 const content = document.getElementById('content');
 const VOTE_URL = BASE_URL + '/vota.html';
 
-let qrDataUrl = null;
+const QR_URL = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=4&data=${encodeURIComponent(VOTE_URL)}`;
 
 function qrImg(size) {
-  if (!qrDataUrl) return '';
-  return `<img src="${qrDataUrl}" width="${size}" height="${size}" style="border-radius:6px">`;
+  return `<img src="${QR_URL}" width="${size}" height="${size}" style="border-radius:6px;background:#fff">`;
 }
 
 function animNum(id, target) {
@@ -100,29 +98,16 @@ function animNum(id, target) {
   requestAnimationFrame(tick);
 }
 
-async function buildQR() {
-  try {
-    qrDataUrl = await QRCode.toDataURL(VOTE_URL, {
-      width: 220, margin: 1, color: { dark: '#000000', light: '#ffffff' },
-      errorCorrectionLevel: 'M'
-    });
-  } catch(e) {
-    console.error('QR error:', e);
-  }
-}
-
 let currentData = null;
 
-buildQR().then(() => {
-  db.ref('rapsodia_event/current').on('value', snap => {
-    const d = snap.val();
-    currentData = d;
-    if (!d) {
-      content.innerHTML = `<div class="idle-screen"><div class="idle-logo">RAPSODIA</div><div class="idle-sub">PRÓXIMA BATALLA EN BREVE</div></div>`;
-      return;
-    }
-    render(d);
-  });
+db.ref('rapsodia_event/current').on('value', snap => {
+  const d = snap.val();
+  currentData = d;
+  if (!d) {
+    content.innerHTML = `<div class="idle-screen"><div class="idle-logo">RAPSODIA</div><div class="idle-sub">PRÓXIMA BATALLA EN BREVE</div></div>`;
+    return;
+  }
+  render(d);
 });
 
 function render(d) {
@@ -237,9 +222,7 @@ function render(d) {
   }
 }
 
-window.addEventListener('resize', () => {
-  buildQR().then(() => { if (currentData) render(currentData); });
-});
+window.addEventListener('resize', () => { if (currentData) render(currentData); });
 </script>
 </body>
 </html>
