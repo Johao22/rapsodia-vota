@@ -16,4 +16,4 @@ const FIREBASE_CONFIG = {
 
 // URL base de tu GitHub Pages (se usa para generar el QR)
 // Ejemplo: "https://tuusuario.github.io/rapsodia-vota"
-const BASE_URL = "https://tuusuario.github.io/rapsodia-vota";
+const BASE_URL = "https://johao22.github.io/rapsodia-vota/";
