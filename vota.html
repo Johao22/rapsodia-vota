@@ -156,6 +156,7 @@ function render(data) {
 
   if (data.status === 'results') {
     phaseLabel.textContent = 'Resultado';
+    const isTie = (data.votes1||0) === (data.votes2||0);
     const w = (data.votes1||0) >= (data.votes2||0) ? 1 : 2;
     const wName = w===1?data.mc1:data.mc2;
     const wColor = w===1?'var(--red)':'var(--blue)';
@@ -163,25 +164,30 @@ function render(data) {
 
     content.innerHTML = `
       <div style="text-align:center">
-        <div style="font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px">Favorito del público</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:${wColor};letter-spacing:4px;text-shadow:0 0 30px ${wColor}40">${wName}</div>
-        <div style="font-size:14px;color:var(--muted);margin-top:4px">${Math.max(pct1,pct2)}% de los votos</div>
+        ${isTie ? `
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:6px;background:linear-gradient(90deg,var(--red),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent">RÉPLICA</div>
+          <div style="font-size:12px;color:var(--muted);letter-spacing:2px;margin-top:4px">EMPATE — SE REPITE LA BATALLA</div>
+        ` : `
+          <div style="font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px">Favorito del público</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:${wColor};letter-spacing:4px;text-shadow:0 0 30px ${wColor}40">${wName}</div>
+          <div style="font-size:14px;color:var(--muted);margin-top:4px">${Math.max(pct1,pct2)}% de los votos</div>
+        `}
       </div>
       <div style="display:flex;gap:10px;margin-top:20px">
-        <div style="flex:1;text-align:center;padding:12px;background:#1a1a1a;border-radius:12px;opacity:${w===1?1:.4}">
+        <div style="flex:1;text-align:center;padding:12px;background:#1a1a1a;border-radius:12px;opacity:${isTie?1:w===1?1:.4}">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--red)">${data.mc1}</div>
           <div style="font-size:22px;font-weight:700">${pct1}%</div>
           <div style="font-size:11px;color:var(--muted)">${data.votes1||0} votos</div>
         </div>
-        <div style="flex:1;text-align:center;padding:12px;background:#1a1a1a;border-radius:12px;opacity:${w===2?1:.4}">
+        <div style="flex:1;text-align:center;padding:12px;background:#1a1a1a;border-radius:12px;opacity:${isTie?1:w===2?1:.4}">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--blue)">${data.mc2}</div>
           <div style="font-size:22px;font-weight:700">${pct2}%</div>
           <div style="font-size:11px;color:var(--muted)">${data.votes2||0} votos</div>
         </div>
       </div>
       <div class="bar-container" style="margin-top:14px">
-        <div style="width:${pct1}%;background:var(--red);box-shadow:${w===1?'0 0 10px var(--red)':'none'}"></div>
-        <div style="width:${pct2}%;background:var(--blue);box-shadow:${w===2?'0 0 10px var(--blue)':'none'}"></div>
+        <div style="width:${pct1}%;background:var(--red);box-shadow:${!isTie&&w===1?'0 0 10px var(--red)':'none'}"></div>
+        <div style="width:${pct2}%;background:var(--blue);box-shadow:${!isTie&&w===2?'0 0 10px var(--blue)':'none'}"></div>
       </div>`;
     return;
   }

@@ -192,28 +192,33 @@ function render(d) {
   }
 
   if (d.status === 'results') {
+    const isTie = (d.votes1||0) === (d.votes2||0);
     const wc1 = w===1 ? '#E24B4A' : '#378ADD';
     const wc2 = w===1 ? '#F2A623' : '#5DCAA5';
     content.innerHTML = `
       <div class="phase-label">${d.phase} &middot; RESULTADO DEL PÚBLICO</div>
+      ${isTie ? `
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,9vw,110px);letter-spacing:10px;background:linear-gradient(90deg,#E24B4A,#378ADD);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:pulse 1.2s ease-in-out infinite;text-align:center">RÉPLICA</div>
+      <div style="text-align:center;font-size:clamp(12px,1.5vw,18px);color:#555;letter-spacing:4px;margin-bottom:2vh">EMPATE — SE DEBE REPETIR LA BATALLA</div>
+      ` : ''}
       <div class="mc-row">
-        <div class="mc-side" style="opacity:${w===2?'.25':'1'};transform:scale(${w===1?'1.06':'0.95'})">
-          <div class="mc-name red" style="${w===1?'text-shadow:0 0 40px rgba(226,75,74,.5)':''}">${d.mc1}</div>
+        <div class="mc-side" style="opacity:${isTie?'1':w===2?'.25':'1'};transform:scale(${isTie?'1':w===1?'1.06':'0.95'})">
+          <div class="mc-name red" style="${!isTie&&w===1?'text-shadow:0 0 40px rgba(226,75,74,.5)':''}">${d.mc1}</div>
           <div class="mc-count">${pct1}<span>%</span></div>
           <div class="mc-label">${d.votes1||0} votos</div>
-          ${w===1?`<div class="winner-label" style="--wc1:${wc1};--wc2:${wc2}">Favorito del público</div>`:''}
+          ${!isTie&&w===1?`<div class="winner-label" style="--wc1:${wc1};--wc2:${wc2}">Favorito del público</div>`:''}
         </div>
         <div class="vs">VS</div>
-        <div class="mc-side" style="opacity:${w===1?'.25':'1'};transform:scale(${w===2?'1.06':'0.95'})">
-          <div class="mc-name blue" style="${w===2?'text-shadow:0 0 40px rgba(55,138,221,.5)':''}">${d.mc2}</div>
+        <div class="mc-side" style="opacity:${isTie?'1':w===1?'.25':'1'};transform:scale(${isTie?'1':w===2?'1.06':'0.95'})">
+          <div class="mc-name blue" style="${!isTie&&w===2?'text-shadow:0 0 40px rgba(55,138,221,.5)':''}">${d.mc2}</div>
           <div class="mc-count">${pct2}<span>%</span></div>
           <div class="mc-label">${d.votes2||0} votos</div>
-          ${w===2?`<div class="winner-label" style="--wc1:${wc1};--wc2:${wc2}">Favorito del público</div>`:''}
+          ${!isTie&&w===2?`<div class="winner-label" style="--wc1:${wc1};--wc2:${wc2}">Favorito del público</div>`:''}
         </div>
       </div>
       <div class="bar">
-        <div class="r ${w===1?'win':''}" style="width:${pct1}%"></div>
-        <div class="b ${w===2?'win':''}" style="width:${pct2}%"></div>
+        <div class="r ${!isTie&&w===1?'win':''}" style="width:${pct1}%"></div>
+        <div class="b ${!isTie&&w===2?'win':''}" style="width:${pct2}%"></div>
       </div>
       <div style="margin-top:2vh;font-size:clamp(10px,1.3vw,14px);color:#333;letter-spacing:3px">
         ${(d.votes1||0)+(d.votes2||0)} VOTOS TOTALES
